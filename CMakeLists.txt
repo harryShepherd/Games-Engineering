@@ -1,4 +1,4 @@
-set(PROJECT_NAME "CubeWorld")
+set(PROJECT_NAME "CubeZone")
 
 project(${PROJECT_NAME} CXX)
 cmake_minimum_required(VERSION 3.11)
