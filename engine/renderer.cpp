@@ -43,3 +43,8 @@ void Renderer::queue(const sf::Drawable *sprite)
 {
     sprites.push(sprite);
 }
+
+void Renderer::update(const float &dt)
+{
+    
+}
