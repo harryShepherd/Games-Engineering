@@ -50,7 +50,7 @@ public:
             // if the component is a derivative of T
             if (dd)
             {
-                out.push_back(std::dynamic_pointer_cast<T>(c));
+                out.push_back(std::dynamic_pointer_cast<T>(component));
             }
         }
 

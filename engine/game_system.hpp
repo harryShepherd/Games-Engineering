@@ -24,15 +24,17 @@ protected:
 class GameSystem
 {
 public:
-    static void start(unsigned int w, unsigned int h, const std::string &title, const float &time_step);
+    static void start(unsigned int w, unsigned int h, const std::string &title, const float &time_step, bool physics_enabled);
     static void clean();
     static void reset();
     static void setActiveScene(const std::shared_ptr<Scene>& active_sc);
+    static float get_fps();
 
 private:
     static void m_init();
     static void m_update(const float &dt);
     static void m_render();
     static std::shared_ptr<Scene> m_active_scene;
-
+    static bool m_physics_enabled;
+    static float fps;
 };

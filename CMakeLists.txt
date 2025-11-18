@@ -32,15 +32,15 @@ file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
 )
 add_library(engine STATIC ${ENGINE_SOURCES})
 target_include_directories(engine INTERFACE engine ${SFML_INCS} ${B2D_INCS})
-target_link_libraries(engine sfml-graphics box2d tile_level)
+target_link_libraries(engine sfml-graphics box2d level_loader)
 
-#add_subdirectory("lib/level_loader")
+add_subdirectory("lib/level_loader")
 
 #### Practical 2 ####
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE )
 target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_INCS} ${B2D_INCS} engine)
-#target_include_directories(${PROJECT_NAME} PRIVATE "lib/level_loader")
+target_include_directories(${PROJECT_NAME} PRIVATE "lib/level_loader")
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/private)
 
 #### level system ####
