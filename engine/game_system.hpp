@@ -28,6 +28,7 @@ public:
     static void clean();
     static void reset();
     static void setActiveScene(const std::shared_ptr<Scene>& active_sc);
+    static float get_fps();
 
 private:
     static void m_init();
@@ -35,4 +36,5 @@ private:
     static void m_render();
     static std::shared_ptr<Scene> m_active_scene;
     static bool m_physics_enabled;
+    static float fps;
 };

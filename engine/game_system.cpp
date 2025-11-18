@@ -5,6 +5,7 @@
 
 std::shared_ptr<Scene> GameSystem::m_active_scene;
 bool GameSystem::m_physics_enabled;
+float GameSystem::fps;
 
 void GameSystem::start(unsigned int w, unsigned int h, const std::string &title, const float &time_step, bool physics_enabled)
 {
@@ -17,10 +18,16 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
 
     sf::Event event;
 
+    static sf::Clock clock;
+
+    sf::Time previousTime = clock.getElapsedTime();
+    sf::Time currentTime;
+
     while(window.isOpen())
     {
-        static sf::Clock clock;
-        float dt = clock.restart().asSeconds();
+        currentTime = clock.getElapsedTime();
+
+        fps = 1.0f / (currentTime.asSeconds() - previousTime.asSeconds());
 
         while(window.pollEvent(event))
         {
@@ -37,18 +44,22 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
             window.close();
         }
         window.clear();
-        m_update(dt);
+        m_update(currentTime.asSeconds());
         m_render();
 
         // V-sync
         sf::sleep(sf::seconds(time_step));
 
         window.display();
+
+        previousTime = currentTime;
     }
 
     window.close();
     clean();
 }
+
+float GameSystem::get_fps() { return fps; }
 
 void GameSystem::setActiveScene(const std::shared_ptr<Scene> &active_sc)
 {

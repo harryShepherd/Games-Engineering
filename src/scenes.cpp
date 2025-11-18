@@ -13,6 +13,10 @@ void TestScene::update(const float &dt)
         GameSystem::reset();
     }
 
+    #ifdef DEBUG
+    std::cout << "FPS: " << GameSystem::get_fps() << std::endl;
+    #endif
+
     Scene::update(dt);
 }
 
