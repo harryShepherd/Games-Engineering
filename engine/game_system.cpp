@@ -1,12 +1,16 @@
+#include <iostream>
 #include "game_system.hpp"
 #include "renderer.hpp"
-#include <iostream>
+#include "physics.hpp"
 
 std::shared_ptr<Scene> GameSystem::m_active_scene;
+bool GameSystem::m_physics_enabled;
 
-void GameSystem::start(unsigned int w, unsigned int h, const std::string &title, const float &time_step)
+void GameSystem::start(unsigned int w, unsigned int h, const std::string &title, const float &time_step, bool physics_enabled)
 {
     sf::RenderWindow window(sf::VideoMode({w, h}), title);
+
+    m_physics_enabled = physics_enabled;
 
     m_init();
     Renderer::init(window);
@@ -51,19 +55,27 @@ void GameSystem::setActiveScene(const std::shared_ptr<Scene> &active_sc)
     m_active_scene = active_sc;
 }
 
-void GameSystem::m_init()
-{
-    return;
-}
-
 void GameSystem::clean()
 {
     m_active_scene->unload();
 }
 
+void GameSystem::reset() {}
+
+void GameSystem::m_init()
+{
+    return;
+}
+
 void GameSystem::m_update(const float &dt)
 {
     m_active_scene->update(dt);
+
+    if(m_physics_enabled)
+    {
+        Physics::update(Physics::time_step);
+    }
+
     Renderer::update(dt);
 }
 
@@ -73,24 +85,23 @@ void GameSystem::m_render()
     Renderer::render();
 }
 
-// ---- SCENE ----
 void Scene::update(const float &dt)
 {
-    //for(std::shared_ptr<Entity> &ent : m_entities.list)
-    //{
-    //    ent->update(dt);
-    //}
+    for(std::shared_ptr<Entity> &ent : m_entities.list)
+    {
+        ent->update(dt);
+    }
 }
 
 void Scene::render()
 {
-    //for(std::shared_ptr<Entity> &ent : m_entities.list)
-    //{
-    //    ent->render();
-    //}
+    for(std::shared_ptr<Entity> &ent : m_entities.list)
+    {
+        ent->render();
+    }
 }
 
 void Scene::unload()
 {
-    //m_entities.list.clear();
+    m_entities.list.clear();
 }
