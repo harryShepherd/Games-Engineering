@@ -1,15 +1,8 @@
-set(PROJECT_NAME "CubeZone")
-
-project(${PROJECT_NAME} CXX)
+project(platformer)
 cmake_minimum_required(VERSION 3.11)
 # Require modern C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Get sources
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    src/*.cpp
-)
 
 #### Setup Directories ####
 #Main output directory
@@ -24,27 +17,37 @@ link_directories("${CMAKE_BINARY_DIR}/lib/SFML/lib")
 
 add_subdirectory("lib/box2d")
 set(B2D_INCS "lib/box2d/include")
-link_directories("${CMAKE_BINARY_DIR}/lib/box2d")
-
-# Engine
-file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
-    engine/*.cpp
-)
-add_library(engine STATIC ${ENGINE_SOURCES})
-target_include_directories(engine INTERFACE engine ${SFML_INCS} ${B2D_INCS})
-target_link_libraries(engine sfml-graphics box2d level_loader)
-
-add_subdirectory("lib/level_loader")
-
-#### Practical 2 ####
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE )
-target_include_directories(${PROJECT_NAME} PRIVATE ${SFML_INCS} ${B2D_INCS} engine)
-target_include_directories(${PROJECT_NAME} PRIVATE "lib/level_loader")
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/private)
+link_directories("${CMAKE_BINARY_DIR}/lib/box2d/bin")
 
 #### level system ####
-target_link_libraries(${PROJECT_NAME} PRIVATE box2d sfml-graphics engine) #level_loader
+add_library(tile_level STATIC tile_level_loader/level_system.cpp)
+target_include_directories(tile_level INTERFACE tile_level_loader)
+target_link_libraries(tile_level sfml-graphics)
 
-# Resources File
-file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
+#### Engine ####
+add_library(engine STATIC engine/game_system.cpp 
+                        engine/renderer.cpp 
+                        engine/ecm.cpp
+                        engine/physics.cpp)
+target_include_directories(engine INTERFACE engine ${SFML_INCS} ${B2D_INCS} tile_level_loader)
+target_link_libraries(engine sfml-graphics box2d tile_level)
+
+#### executable ####
+add_executable(platformer 
+    src/main.cpp 
+    src/scenes.cpp
+    )
+    #graphics_cmps.cpp
+    #physics_cmps.cpp)
+target_include_directories(platformer PRIVATE ${SFML_INCS} ${B2D_INCS} engine tile_level_loader)
+target_link_libraries(platformer sfml-graphics box2d engine tile_level)
+set_target_properties(platformer 
+    PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$(Configuration)
+)
+add_custom_target(copy_resources ALL COMMAND ${CMAKE_COMMAND} 
+  -E copy_directory
+    "${PROJECT_SOURCE_DIR}/resources"
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources
+)
+add_dependencies(platformer copy_resources)
