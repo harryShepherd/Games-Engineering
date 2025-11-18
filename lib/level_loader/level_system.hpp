@@ -44,5 +44,5 @@ protected:
     static sf::Vector2f m_start_position;
     static std::vector<std::unique_ptr<sf::RectangleShape>> m_sprites;
     static void build_sprites();
-    static void LevelSystem::m_get_group(Tile type,const sf::Vector2i &pos,const std::vector<sf::Vector2i> &tile_list, std::vector<sf::Vector2i> &group,bool vert);
+    static void m_get_group(Tile type, const sf::Vector2i &pos, const std::vector<sf::Vector2i> &tile_list, std::vector<sf::Vector2i> &group, bool vert);
 };

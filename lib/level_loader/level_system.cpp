@@ -231,7 +231,7 @@ std::vector<std::vector<sf::Vector2i>> LevelSystem::get_groups(Tile type)
     return groups;
 }
 
-void LevelSystem::m_get_group(Tile type,const sf::Vector2i &pos,const std::vector<sf::Vector2i> &tile_list, std::vector<sf::Vector2i> &group,bool vert)
+void LevelSystem::m_get_group(Tile type, const sf::Vector2i &pos, const std::vector<sf::Vector2i> &tile_list, std::vector<sf::Vector2i> &group, bool vert)
 {
     if (in_group(pos, group)) { return; }
 
