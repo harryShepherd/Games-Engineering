@@ -13,5 +13,5 @@ struct params
     static constexpr float inv_phys_scale = 1.0f / phys_scale;
 
     static constexpr int sub_step_count = 4;
-    static constexpr float time_step = 1.0f / 120.0f;    // 60FPS
+    static constexpr float time_step = 1.0f / 60.0f;    // 60FPS
 };
