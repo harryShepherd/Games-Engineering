@@ -30,7 +30,7 @@ b2ContactEvents Physics::get_contact_events()
 }
 
 // Convert from b2Vec2 to Vector2f
-const sf::Vector2f Physics::b2v_to_sv2(const b2Vec2 &in)
+const sf::Vector2f Physics::bv2_to_sv2(const b2Vec2 &in)
 {
     return sf::Vector2f(in.x * phys_scale, in.y * phys_scale);
 }
