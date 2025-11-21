@@ -60,7 +60,7 @@ void SteeringComponent::update(const float& dt) {
 	}
 }
 
-SteeringComponent::SteeringComponent(Entity* p, Entity* player, float max_speed) :
+SteeringComponent::SteeringComponent(Entity* p, Entity* player, float max_speed):
 	_player(player), _max_speed(max_speed), Component(p){ }
 
 //Checks if the entity is making a valid move.

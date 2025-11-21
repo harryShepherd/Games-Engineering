@@ -20,7 +20,7 @@ void KeyboardMovementComponent::update(const float& dt) {
 }
 
 //Initialise Component
-KeyboardMovementComponent::BasicMovementComponent(Entity* p)
+KeyboardMovementComponent::KeyboardMovementComponent(Entity* p)
 	: speed(100.0f), Component(p) {
 }
 
@@ -28,7 +28,7 @@ KeyboardMovementComponent::BasicMovementComponent(Entity* p)
 	// Note: Amend this to work with levels once this is functional.
 bool KeyboardMovementComponent::valid_move(const sf::Vector2f& pos) {
 	if (pos.x < 0.0f || pos.x > params::window_width ||
-		pos.y < 0.0f || pos.y > param::game_height) {
+		pos.y < 0.0f || pos.y > params::window_height) {
 		return false;
 	}
 	return true;
