@@ -7,11 +7,10 @@ int main()
 {
 	Physics::initialise();
 
-	Scenes::testScene = std::make_shared<TestScene>();
-	Scenes::testScene->load();
-	
-	GameSystem::setActiveScene(Scenes::testScene);
-	GameSystem::start(params::window_width, params::window_height, "Test", Physics::time_step, true);
+	Scenes::menuScene = std::make_shared<MenuScene>();
+	Scenes::menuScene->load();
+	GameSystem::setActiveScene(Scenes::menuScene);
+	GameSystem::start(params::window_width, params::window_height, "Menu", Physics::time_step, true);
 
 	Physics::shutdown();
 	return 0;

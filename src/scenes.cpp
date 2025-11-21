@@ -5,6 +5,7 @@
 #include "game_parameters.hpp"
 
 std::shared_ptr<Scene> Scenes::testScene;
+std::shared_ptr<Scene> Scenes::menuScene;
 
 void TestScene::update(const float &dt)
 {
@@ -35,6 +36,10 @@ void TestScene::unload()
 
 }
 
+/// <summary>
+/// Updates the MenuScene
+/// </summary>
+/// <param name="dt">Delta Time - Sets frame rate</param>
 void MenuScene::update(const float& dt) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
         
@@ -42,11 +47,26 @@ void MenuScene::update(const float& dt) {
     Scene::update(dt);
 }
 
-void MenuScene::load() {
-    _font.loadFromFile("resources/fonts/vcr-mono.ttf");
-    _text.setFont(_font);
-    _text.setCharacterSize(60);
-    _text.setString("Press 1 for Steering");
+/// <summary>
+/// Renders the menu scene.
+/// Includes text.
+/// </summary>
+void MenuScene::render() {
+    Renderer::queue(&_text);
+    Scene::render();
 }
 
+/// <summary>
+/// Loads the font and text into the menu scene.
+/// </summary>
+void MenuScene::load() {
+    _font.loadFromFile("resources/fonts/vcr_mono.ttf");
+    _text.setFont(_font);
+    _text.setCharacterSize(60);
+    _text.setString("Cube Zone");
+}
+
+/// <summary>
+/// Unloads the MenuScene
+/// </summary>
 void MenuScene::unload(){}
