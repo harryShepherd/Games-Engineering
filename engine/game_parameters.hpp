@@ -24,4 +24,10 @@ struct params
     static constexpr float player_max_vel[2] = {200.f,400.f};
     static constexpr float player_friction = 100.f;
     static constexpr float player_restitution = 0.0f;
+    static constexpr sf::Keyboard::Key controls[4] = {
+        sf::Keyboard::W,   // Player Up
+        sf::Keyboard::A,   // Player Left
+        sf::Keyboard::S,   // Player Down
+        sf::Keyboard::D,   // Player Right
+    };
 };
