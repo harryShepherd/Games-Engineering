@@ -37,7 +37,7 @@ void TestScene::unload()
 
 void MenuScene::update(const float& dt) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
-        GameSystem::setActiveScene(Scenes::steeringScene);
+        
     }
     Scene::update(dt);
 }
