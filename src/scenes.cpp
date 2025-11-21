@@ -4,9 +4,9 @@
 #include "renderer.hpp"
 #include "game_parameters.hpp"
 #include <random>
-#include "../comps/graphic_components.hpp"
-#include "../comps/control_components.hpp"
-#include "../comps/ai_components.hpp"
+#include "graphic_components.hpp"
+#include "control_components.hpp"
+#include "ai_components.hpp"
 
 std::shared_ptr<Scene> Scenes::testScene;
 std::shared_ptr<Scene> Scenes::menuScene;
@@ -81,7 +81,7 @@ void SteeringScene::load() {
     std::shared_ptr<Entity> player = make_entity();
     player->set_position(sf::Vector2f(params::window_height / 2, params::window_height / 2));
     std::shared_ptr<ShapeComponent> shape = player->add_component<ShapeComponent>();
-    shape->set_shape<sf::RectangleShape>(10.0f);
+    shape->set_shape<sf::RectangleShape>(sf::Vector2f(10.0f, 10.0f));
     shape->get_shape().setFillColor(sf::Color::Red);
     player->add_component<KeyboardMovementComponent>();
 
