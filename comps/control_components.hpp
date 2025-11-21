@@ -10,7 +10,7 @@ class KeyboardMovementComponent : public Component {
 
 	public:
 		// Checks the keyboard and moves the component's parent.
-		void update(double) override;
+		void update(const float& dt) override;
 		// Moves the component parent
 		void move(const sf::Vector2f&);
 		// Moves the component parent.
