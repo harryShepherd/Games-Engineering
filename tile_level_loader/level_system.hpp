@@ -9,6 +9,7 @@
 
 class LevelSystem
 {
+public:
     enum Tile
     {
         EMPTY,
