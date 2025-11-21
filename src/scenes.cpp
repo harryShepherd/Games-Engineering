@@ -34,3 +34,19 @@ void TestScene::unload()
 {
 
 }
+
+void MenuScene::update(const float& dt) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
+        GameSystem::setActiveScene(Scenes::steeringScene);
+    }
+    Scene::update(dt);
+}
+
+void MenuScene::load() {
+    _font.loadFromFile("resources/fonts/vcr-mono.ttf");
+    _text.setFont(_font);
+    _text.setCharacterSize(60);
+    _text.setString("Press 1 for Steering");
+}
+
+void MenuScene::unload(){}
