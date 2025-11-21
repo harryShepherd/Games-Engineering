@@ -65,7 +65,7 @@ void MenuScene::load() {
     _font.loadFromFile("resources/fonts/vcr_mono.ttf");
     _text.setFont(_font);
     _text.setCharacterSize(60);
-    _text.setString("Cube Zone");
+    _text.setString("Cube Zone\n\n\n\nPress 1 for Steering");
 }
 
 /// <summary>
