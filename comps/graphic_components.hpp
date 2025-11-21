@@ -1,3 +1,5 @@
+#include "ecm.hpp"
+
 class ShapeComponent : public Component {
 public:
     ShapeComponent() = delete;
