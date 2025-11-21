@@ -3,8 +3,10 @@
 #include "level_system.hpp"
 #include "renderer.hpp"
 #include "game_parameters.hpp"
-#include "graphic_components.hpp"
-#include "control_components.hpp"
+#include <random>
+#include "../comps/graphic_components.hpp"
+#include "../comps/control_components.hpp"
+#include "../comps/ai_components.hpp"
 
 std::shared_ptr<Scene> Scenes::testScene;
 std::shared_ptr<Scene> Scenes::menuScene;
@@ -82,6 +84,22 @@ void SteeringScene::load() {
     shape->set_shape<sf::RectangleShape>(10.0f);
     shape->get_shape().setFillColor(sf::Color::Red);
     player->add_component<KeyboardMovementComponent>();
+
+    
+    std::random_device dev;
+    std::default_random_engine engine(dev());
+    std::uniform_real_distribution<float> x_dist(0.0f, params::window_width);
+    std::uniform_real_distribution<float> y_dist(0.0f, params::window_height);
+
+    for (size_t e = 0; e < 100; e++)
+    {
+        std::shared_ptr<Entity> enemy = make_entity();
+        enemy->set_position(sf::Vector2f(x_dist(engine), y_dist(engine)));
+        std::shared_ptr<ShapeComponent> shape = enemy->add_component<ShapeComponent>();
+        shape->set_shape<sf::RectangleShape>(sf::Vector2f(10.0f, 10.0f));
+        shape->get_shape().setFillColor(sf::Color::Blue);
+        enemy->add_component<SteeringComponent>(player.get(), 50.0f);
+    }
 }
 
 // Unloads the scene.
