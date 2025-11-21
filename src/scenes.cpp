@@ -3,6 +3,8 @@
 #include "level_system.hpp"
 #include "renderer.hpp"
 #include "game_parameters.hpp"
+#include "graphic_components.hpp"
+#include "control_components.hpp"
 
 std::shared_ptr<Scene> Scenes::testScene;
 std::shared_ptr<Scene> Scenes::menuScene;
@@ -70,3 +72,27 @@ void MenuScene::load() {
 /// Unloads the MenuScene
 /// </summary>
 void MenuScene::unload(){}
+
+// Loads the Steering Scene
+    // Not permanent
+void SteeringScene::load() {
+    std::shared_ptr<Entity> player = make_entity();
+    player->set_position(sf::Vector2f(params::window_height / 2, params::window_height / 2));
+    std::shared_ptr<ShapeComponent> shape = player->add_component<ShapeComponent>();
+    shape->set_shape<sf::RectangleShape>(10.0f);
+    shape->get_shape().setFillColor(sf::Color::Red);
+    player->add_component<KeyboardMovementComponent>();
+}
+
+// Unloads the scene.
+void SteeringScene::unload() {
+    Scene::unload();
+}
+
+void SteeringScene::update(const float& dt) {
+    Scene::update(dt);
+}
+
+void SteeringScene::render() {
+    Scene::render();
+}
