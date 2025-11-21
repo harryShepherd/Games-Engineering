@@ -25,11 +25,6 @@ struct Scenes
 class MenuScene : public Scene {
     public:
         MenuScene() = default;
-};
-
-class MenuScene : public Scene {
-    public:
-        MenuScene() = default;
         void update(const float& dt) override;
         void render() override;
         void load() override;
