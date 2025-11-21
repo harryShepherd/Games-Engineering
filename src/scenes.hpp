@@ -18,4 +18,17 @@ private:
 struct Scenes
 {
     static std::shared_ptr<Scene> testScene;
+    static std::shared_ptr<Scene> menuScene;
+};
+
+class MenuScene : public Scene {
+    public:
+        MenuScene() = default;
+        void update(const float& dt) override;
+        void render() override;
+        void load() override;
+        void unload() override;
+    private:
+        sf::Text _text;
+        sf::Font _font;
 };
