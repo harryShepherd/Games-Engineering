@@ -1,6 +1,7 @@
 #include "physics_comps.hpp"
 #include "level_system.hpp"
 #include "game_parameters.hpp"
+#include <array>
 
 PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> &tile_group,
     float friction, float restitution) :
@@ -122,7 +123,7 @@ void PlatformComponent::m_create_chain_shape(const std::vector<sf::Vector2i> &ti
 void PhysicsComponent::update(const float &dt)
 {
     m_parent->set_position(Physics::invert_height(Physics::bv2_to_sv2(b2Body_GetPosition(m_body_id)), params::window_height));
-    m_parent->set_rotation((180 / M_PI) * b2Rot_GetAngle(b2Body_GetRotation(m_body_id)));
+    m_parent->set_rotation((180 / 3.1415f) * b2Rot_GetAngle(b2Body_GetRotation(m_body_id)));
 }
 
 PhysicsComponent::PhysicsComponent(Entity *p, bool dyn) : Component(p), m_dynamic(dyn)

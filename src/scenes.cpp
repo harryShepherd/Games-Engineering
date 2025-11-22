@@ -178,7 +178,7 @@ void PhysicsScene::update(const float &dt){
     // Sync Sprites to physics position
     sprites[i]->setPosition(Physics::invert_height(Physics::bv2_to_sv2(b2Body_GetPosition(bodies[i])), params::window_height));
     // Sync Sprites to physics Rotation
-    sprites[i]->setRotation((180 / M_PI) * asin(b2Body_GetRotation(bodies[i]).s));
+    sprites[i]->setRotation((180 / 3.1415f) * asin(b2Body_GetRotation(bodies[i]).s));
   }
 }
 
