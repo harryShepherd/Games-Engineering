@@ -49,16 +49,17 @@ void TestScene::unload()
 /// </summary>
 /// <param name="dt">Delta Time - Sets frame rate</param>
 void MenuScene::update(const float& dt) {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) 
+    {
         Scenes::steeringScene = std::make_shared<SteeringScene>();
-        Scenes::steeringScene->load();
         GameSystem::setActiveScene(Scenes::steeringScene);
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
+    } 
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
     {
         Scenes::physicsScene = std::make_shared<PhysicsScene>();
-        Scenes::physicsScene->load();
         GameSystem::setActiveScene(Scenes::physicsScene);
     }
+
     Scene::update(dt);
 }
 
@@ -119,6 +120,12 @@ void SteeringScene::unload() {
 }
 
 void SteeringScene::update(const float& dt) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0)) 
+    {
+        Scenes::physicsScene = std::make_shared<PhysicsScene>();
+        GameSystem::setActiveScene(Scenes::physicsScene);
+    } 
+
     Scene::update(dt);
 }
 
@@ -175,15 +182,22 @@ void PhysicsScene::load(){
 }
 
 void PhysicsScene::update(const float &dt){
-  // Step Physics world by time_step
-  b2World_Step(world_id,params::time_step,params::sub_step_count);
 
-  for (int i = 0; i < bodies.size(); ++i) {
-    // Sync Sprites to physics position
-    sprites[i]->setPosition(Physics::invert_height(Physics::bv2_to_sv2(b2Body_GetPosition(bodies[i])), params::window_height));
-    // Sync Sprites to physics Rotation
-    sprites[i]->setRotation((180 / 3.1415f) * asin(b2Body_GetRotation(bodies[i]).s));
-  }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) 
+    {
+        Scenes::steeringScene = std::make_shared<SteeringScene>();
+        GameSystem::setActiveScene(Scenes::steeringScene);
+    } 
+
+    // Step Physics world by time_step
+    b2World_Step(world_id,params::time_step,params::sub_step_count);
+
+    for (int i = 0; i < bodies.size(); ++i) {
+        // Sync Sprites to physics position
+        sprites[i]->setPosition(Physics::invert_height(Physics::bv2_to_sv2(b2Body_GetPosition(bodies[i])), params::window_height));
+        // Sync Sprites to physics Rotation
+        sprites[i]->setRotation((180 / 3.1415f) * asin(b2Body_GetRotation(bodies[i]).s));
+    }
 }
 
 void PhysicsScene::render(){
