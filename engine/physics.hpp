@@ -17,6 +17,10 @@ public:
     static const b2Vec2 sv2_to_bv2(const sf::Vector2f& in);
     static const sf::Vector2f invert_height(const sf::Vector2f& in, const int &game_height);
 
+    static b2BodyId create_physics_box(b2WorldId& world_id, const bool dynamic, const sf::Vector2f& position, const sf::Vector2f& size);
+    static b2BodyId create_physics_box(b2WorldId& world_id, const bool dynamic, const std::shared_ptr<sf::RectangleShape>& rs);
+
+
     static constexpr float phys_scale = 30.0f; // 30 pixels = 1 meter
     static constexpr float phys_scale_inv = 1.0f / phys_scale;
     static constexpr float time_step = 1.0f / 60.0f; // 60fps
