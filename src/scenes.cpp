@@ -1,12 +1,13 @@
 #include <iostream>
+#include <random>
 #include "scenes.hpp"
 #include "level_system.hpp"
 #include "renderer.hpp"
 #include "game_parameters.hpp"
-#include <random>
 #include "graphic_components.hpp"
 #include "control_components.hpp"
 #include "ai_components.hpp"
+#include "engine_utils.hpp"
 
 std::shared_ptr<Scene> Scenes::testScene;
 std::shared_ptr<Scene> Scenes::menuScene;
@@ -64,7 +65,7 @@ void MenuScene::render() {
 /// Loads the font and text into the menu scene.
 /// </summary>
 void MenuScene::load() {
-    _font.loadFromFile("resources/fonts/vcr_mono.ttf");
+    _font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf"));
     _text.setFont(_font);
     _text.setCharacterSize(60);
     _text.setString("Cube Zone\n\n\n\nPress 1 for Steering");
