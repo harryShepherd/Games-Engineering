@@ -87,8 +87,10 @@ void MenuScene::load() {
 /// </summary>
 void MenuScene::unload(){}
 
-// Loads the Steering Scene
-    // Not permanent
+/// <summary>
+/// Loads the steering Scene.
+///     Not permanent
+/// </summary>
 void SteeringScene::load() {
     std::shared_ptr<Entity> player = make_entity();
     player->set_position(sf::Vector2f(params::window_height / 2, params::window_height / 2));
@@ -114,11 +116,17 @@ void SteeringScene::load() {
     }
 }
 
-// Unloads the scene.
+/// <summary>
+/// Unloads the scene.
+/// </summary>
 void SteeringScene::unload() {
     Scene::unload();
 }
 
+/// <summary>
+/// Updates the scene.
+/// </summary>
+/// <param name="dt"></param>
 void SteeringScene::update(const float& dt) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0)) 
     {
@@ -129,10 +137,16 @@ void SteeringScene::update(const float& dt) {
     Scene::update(dt);
 }
 
+/// <summary>
+/// Renders the scene.
+/// </summary>
 void SteeringScene::render() {
     Scene::render();
 }
 
+/// <summary>
+/// Loads the scene.
+/// </summary>
 void PhysicsScene::load(){
     b2WorldDef world_def = b2DefaultWorldDef();
     world_def.gravity = b2Vec2({0.0f, params::g});  
@@ -181,6 +195,10 @@ void PhysicsScene::load(){
   }
 }
 
+/// <summary>
+/// Updates the scene.
+/// </summary>
+/// <param name="dt">Takes the delta time used for frequency of frames.</param>
 void PhysicsScene::update(const float &dt){
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) 
@@ -199,13 +217,17 @@ void PhysicsScene::update(const float &dt){
         sprites[i]->setRotation((180 / 3.1415f) * asin(b2Body_GetRotation(bodies[i]).s));
     }
 }
-
+/// <summary>
+/// Renders the scene.
+/// </summary>
 void PhysicsScene::render(){
   for(std::shared_ptr<sf::RectangleShape> sprite: sprites)
     Renderer::queue(sprite.get());
 
 }
-
+/// <summary>
+/// Unloads the scene.
+/// </summary>
 void PhysicsScene::unload(){
   for(std::shared_ptr<sf::RectangleShape> &shape: sprites)
     shape.reset();

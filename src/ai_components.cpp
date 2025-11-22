@@ -50,13 +50,13 @@ void SteeringComponent::update(const float& dt) {
 		// This is temporary.
 	if (distance(m_parent->get_position(), _player->get_position()) > 100.0f) {
 		SteeringOutput output = SteeringBehaviours::seek(_player->get_position(), m_parent->get_position());
-		move(output.direction * _max_speed * dt);
+		move(output.direction * _max_speed * (float)params::time_step);
 	}
 	//If player is closer than 50 pixels away then flee.
 		// This is temporary.
 	else if (distance(m_parent->get_position(), _player->get_position()) < 50.0f) {
 		SteeringOutput output = SteeringBehaviours::flee(_player->get_position(), m_parent->get_position());
-		move(output.direction * _max_speed * dt);
+		move(output.direction * _max_speed * (float)params::time_step);
 	}
 }
 

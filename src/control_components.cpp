@@ -16,7 +16,7 @@ void KeyboardMovementComponent::update(const float& dt) {
 	if (sf::Keyboard::isKeyPressed(params::controls[2])) {
 		direction.y += 1.0f;
 	}
-	move(direction * speed * (float)dt);
+	move(direction * speed * (float)params::time_step);
 }
 
 //Initialise Component

@@ -10,8 +10,6 @@ void ShapeComponent::render() { Renderer::queue(_shape.get()); }
 sf::Shape& ShapeComponent::get_shape() const { return *_shape; }
 
 ShapeComponent::ShapeComponent(Entity* p) : Component(p), _shape(std::make_shared<sf::CircleShape>()) {}
-
-
 SpriteComponent::SpriteComponent(Entity *p) : Component(p), m_sprite(std::make_shared<sf::Sprite>()) {}
 
 sf::Sprite& SpriteComponent::get_sprite() const 
