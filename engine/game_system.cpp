@@ -65,7 +65,9 @@ float GameSystem::get_fps() { return fps; }
 // Sets the active scene.
 void GameSystem::setActiveScene(const std::shared_ptr<Scene> &active_sc)
 {
+    std::cout << "Changing active scene" << std::endl;
     m_active_scene = active_sc;
+    std::cout << "Scene changed" << std::endl;
 }
 
 //Cleans the GameSystem.

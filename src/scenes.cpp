@@ -50,9 +50,13 @@ void TestScene::unload()
 /// <param name="dt">Delta Time - Sets frame rate</param>
 void MenuScene::update(const float& dt) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
+        Scenes::steeringScene = std::make_shared<SteeringScene>();
+        Scenes::steeringScene->load();
         GameSystem::setActiveScene(Scenes::steeringScene);
     } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
     {
+        Scenes::physicsScene = std::make_shared<PhysicsScene>();
+        Scenes::physicsScene->load();
         GameSystem::setActiveScene(Scenes::physicsScene);
     }
     Scene::update(dt);
