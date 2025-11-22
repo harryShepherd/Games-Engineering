@@ -46,3 +46,27 @@ const sf::Vector2f Physics::invert_height(const sf::Vector2f &in, const int &gam
 {
     return sf::Vector2f(in.x, game_height - in.y);
 }
+
+//Create a Box2D body with a box fixture
+b2BodyId Physics::create_physics_box(b2WorldId& world_id, const bool dynamic, const sf::Vector2f& position, const sf::Vector2f& size) {
+  b2BodyDef body_def = b2DefaultBodyDef();
+  //Is Dynamic(moving), or static(Stationary)
+  body_def.type = dynamic ? b2_dynamicBody : b2_staticBody;
+  body_def.position = sv2_to_bv2(position);
+  //Create the body
+  b2BodyId body_id = b2CreateBody(world_id,&body_def);
+
+  //Create the fixture shape
+  b2ShapeDef shape_def = b2DefaultShapeDef();
+  shape_def.density = dynamic ? 10.f : 0.f;
+  shape_def.material.friction =  dynamic ? 0.8f : 1.f;
+  shape_def.material.restitution = 1.0f;
+  b2Polygon polygon = b2MakeBox(sv2_to_bv2(size).x * 0.5f, sv2_to_bv2(size).y * 0.5f);
+  b2CreatePolygonShape(body_id,&shape_def,&polygon);
+
+  return body_id;
+}
+
+b2BodyId Physics::create_physics_box(b2WorldId& world_id, const bool dynamic, const std::shared_ptr<sf::RectangleShape>& rs){
+  return create_physics_box(world_id,dynamic,rs->getPosition(),rs->getSize());
+}
