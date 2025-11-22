@@ -66,7 +66,14 @@ float GameSystem::get_fps() { return fps; }
 void GameSystem::setActiveScene(const std::shared_ptr<Scene> &active_sc)
 {
     std::cout << "Changing active scene" << std::endl;
+
+    // TODO: Ensure the previous scene is unloaded correctly
+    //if(m_active_scene)
+    //    m_active_scene->unload();
+
     m_active_scene = active_sc;
+    m_active_scene->load();
+
     std::cout << "Scene changed" << std::endl;
 }
 
