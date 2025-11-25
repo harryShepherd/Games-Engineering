@@ -67,4 +67,8 @@ class BasicLevelScene : public Scene
         void render() override;
         void load() override;
         void unload() override;
+    private:
+        std::shared_ptr<Entity> m_player;
+        std::vector<std::shared_ptr<Entity>> m_walls;
+        void m_load_level(const std::string &level);
 };

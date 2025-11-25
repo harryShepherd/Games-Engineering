@@ -1,18 +1,22 @@
 #include "ecm.hpp"
 #include "renderer.hpp"
+#include <iostream>
 
 void EntityManager::update(const float &dt)
 {
+    std::cout << "Updating " << list.size() << " entities" << std::endl;
     for(size_t i = 0; i < list.size(); ++i)
     {
         if(list[i]->to_be_deleted())
         {
+            std::cout << "list[" << i << "] is to be deleted." << std::endl;
             list.erase(list.begin() + i);
             --i;
             continue;
         }
         if(list[i]->is_alive())
         {
+            std::cout << "list[" << i << "] is to be updated." << std::endl;
             list[i]->update(dt);
         }
     }

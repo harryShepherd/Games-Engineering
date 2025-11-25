@@ -228,6 +228,22 @@ void PhysicsComponent::create_box_shape(const sf::Vector2f &size, float mass, fl
     m_shape_id = b2CreateCapsuleShape(m_body_id, &shape_def, &capsule);
 }
 
+void PhysicsComponent::create_capsule_shape(const sf::Vector2f& size,float mass,float friction, float restitution){
+    m_mass = mass;
+    m_friction = friction;
+    m_restitution = restitution;  
+    //Create the fixture shape
+    b2ShapeDef shape_def = b2DefaultShapeDef();
+    shape_def.density = m_dynamic ? m_mass : 0.f;
+    shape_def.material.friction = m_friction;
+    shape_def.material.restitution = m_restitution;
+    b2Vec2 b2_size = Physics::sv2_to_bv2(size);
+    b2Capsule capsule;
+    capsule.center1 = {0,b2_size.y*0.5f-b2_size.x*0.5f};
+    capsule.center2 = {0,-b2_size.y*0.5f+b2_size.x*0.5f};
+    capsule.radius = b2_size.x*0.5f;
+}
+
 PlayerPhysicsComponent::PlayerPhysicsComponent(Entity *p, const sf::Vector2f &size) : PhysicsComponent(p, true)
 {
     m_size = Physics::sv2_to_bv2(size);
