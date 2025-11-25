@@ -18,7 +18,6 @@ PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> 
 
 void PlatformComponent::update(const float &dt) 
 {
-    std::cout << "PlatformComponent::update()" << std::endl;
 }
 
 void PlatformComponent::render() {}

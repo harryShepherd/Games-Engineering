@@ -218,6 +218,8 @@ void PhysicsScene::unload(){
 
 void BasicLevelScene::m_load_level(const std::string &level)
 {
+    LevelSystem::load_level(level, params::tile_size);
+
     m_player = make_entity();
     m_player->set_position(LevelSystem::get_start_pos());
 

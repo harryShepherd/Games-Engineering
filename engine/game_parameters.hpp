@@ -5,8 +5,8 @@
 
 struct params
 {
-    static constexpr int window_width = 700;
-    static constexpr int window_height = 700;
+    static constexpr int window_width = 1000;
+    static constexpr int window_height = 1000;
 
     static constexpr float g = -9.8f;   // gravity
 
@@ -18,7 +18,7 @@ struct params
 
     static constexpr float tile_size = 40.0f;
 
-    static constexpr float player_size[2] = {20.f,30.f};
+    static constexpr float player_size[2] = {20.f,25.f};
     static constexpr float player_weight = 10.f;
     static constexpr float player_jump = 40.f;
     static constexpr float player_impulse = 100.f;
