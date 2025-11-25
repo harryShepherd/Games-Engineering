@@ -1,4 +1,4 @@
-#include <renderer.hpp>
+#include "renderer.hpp"
 #include <queue>
 
 static std::queue<const sf::Drawable *> sprites;
@@ -42,4 +42,9 @@ void Renderer::render()
 void Renderer::queue(const sf::Drawable *sprite)
 {
     sprites.push(sprite);
+}
+
+void Renderer::update(const float &dt)
+{
+    
 }

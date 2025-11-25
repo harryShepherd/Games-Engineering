@@ -3,25 +3,9 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 
-class Component
-{
-public:
-    Component() = delete;
+class Component; //forward declare
 
-    bool to_be_deleted() const; 
-    
-    virtual void update(const float &dt) = 0;
-    virtual void render() = 0;
-    virtual ~Component();
-
-protected:
-    Entity* const m_parent;
-    bool m_to_delete;
-    explicit Component(Entity* const p);
-};
-
-class Entity
-{
+class Entity {
 public:
     Entity() {}
     virtual ~Entity();
@@ -66,7 +50,7 @@ public:
             // if the component is a derivative of T
             if (dd)
             {
-                out.push_back(std::dynamic_pointer_cast<T>(c));
+                out.push_back(std::dynamic_pointer_cast<T>(component));
             }
         }
 
@@ -83,7 +67,6 @@ public:
     void set_to_delete();
     bool is_visible() const;
     void set_visible(bool visible);
-
 protected:
     std::vector<std::shared_ptr<Component>> m_components;
     sf::Vector2f m_position;
@@ -98,4 +81,18 @@ struct EntityManager
     std::vector<std::shared_ptr<Entity>> list;
     void update(const float &dt);
     void render();
+};
+
+class Component {
+public:
+    Component() = delete;
+    bool to_be_deleted() const;
+    virtual void update(const float& dt) = 0;
+    virtual void render() = 0;
+    virtual ~Component();
+protected:
+    Entity* const m_parent;
+    bool m_to_delete;
+    explicit Component(Entity* const p);
+
 };
