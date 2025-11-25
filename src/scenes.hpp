@@ -43,21 +43,18 @@ class SteeringScene : public Scene {
         void render() override;
         void load() override;
         void unload() override;
-    private:
-        sf::Text _text;
-        sf::Font _font;
 };
 
 class PhysicsScene : public Scene
 {
-public:
-  PhysicsScene() = default;
-  void update(const float &dt) override;
-  void render() override;
-  void load()override;
-  void unload() override;
-private:
-  b2WorldId world_id;
-  std::vector<b2BodyId> bodies;
-  std::vector<std::shared_ptr<sf::RectangleShape>> sprites;
+    public:
+      PhysicsScene() = default;
+      void update(const float &dt) override;
+      void render() override;
+      void load()override;
+      void unload() override;
+    private:
+      b2WorldId world_id;
+      std::vector<b2BodyId> bodies;
+      std::vector<std::shared_ptr<sf::RectangleShape>> sprites;
 };
