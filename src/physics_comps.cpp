@@ -2,6 +2,7 @@
 #include "level_system.hpp"
 #include "game_parameters.hpp"
 #include <array>
+#include <iostream>
 
 PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> &tile_group,
     float friction, float restitution) :
@@ -15,7 +16,10 @@ PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> 
     m_create_chain_shape(tile_group);
 }
 
-void PlatformComponent::update(const float &dt) {}
+void PlatformComponent::update(const float &dt) 
+{
+    std::cout << "PlatformComponent::update()" << std::endl;
+}
 
 void PlatformComponent::render() {}
 
@@ -214,18 +218,13 @@ void PhysicsComponent::create_box_shape(const sf::Vector2f &size, float mass, fl
     m_mass = mass;
     m_friction = friction;
     m_restitution = restitution;
-
-    // Create the fixture shape
+    //Create the fixture shape
     b2ShapeDef shape_def = b2DefaultShapeDef();
-    shape_def.density = m_dynamic ? m_mass : 0.0f;
+    shape_def.density = m_dynamic ? m_mass : 0.f;
     shape_def.material.friction = m_friction;
     shape_def.material.restitution = m_restitution;
-    b2Vec2 b2_size = Physics::sv2_to_bv2(size);
-    b2Capsule capsule;
-    capsule.center1 = {0, b2_size.y * 0.5f - b2_size.x * 0.5f};
-    capsule.center2 = {0, -b2_size.y * 0.5f + b2_size.x * 0.5f};
-    capsule.radius = b2_size.x * 0.5f;
-    m_shape_id = b2CreateCapsuleShape(m_body_id, &shape_def, &capsule);
+    b2Polygon polygon = b2MakeBox(Physics::sv2_to_bv2(size).x * 0.5f, Physics::sv2_to_bv2(size).y * 0.5f);
+    m_shape_id = b2CreatePolygonShape(m_body_id,&shape_def,&polygon);
 }
 
 void PhysicsComponent::create_capsule_shape(const sf::Vector2f& size,float mass,float friction, float restitution){
@@ -235,13 +234,14 @@ void PhysicsComponent::create_capsule_shape(const sf::Vector2f& size,float mass,
     //Create the fixture shape
     b2ShapeDef shape_def = b2DefaultShapeDef();
     shape_def.density = m_dynamic ? m_mass : 0.f;
-    shape_def.material.friction = m_friction;
+    shape_def.material.friction =   m_friction;
     shape_def.material.restitution = m_restitution;
     b2Vec2 b2_size = Physics::sv2_to_bv2(size);
     b2Capsule capsule;
     capsule.center1 = {0,b2_size.y*0.5f-b2_size.x*0.5f};
     capsule.center2 = {0,-b2_size.y*0.5f+b2_size.x*0.5f};
     capsule.radius = b2_size.x*0.5f;
+    m_shape_id = b2CreateCapsuleShape(m_body_id,&shape_def,&capsule);
 }
 
 PlayerPhysicsComponent::PlayerPhysicsComponent(Entity *p, const sf::Vector2f &size) : PhysicsComponent(p, true)
@@ -276,6 +276,7 @@ bool PlayerPhysicsComponent::is_grounded() const
 void PlayerPhysicsComponent::update(const float &dt)
 {
     const sf::Vector2f pos = m_parent->get_position();
+
     b2Vec2 b2_pos = Physics::sv2_to_bv2(Physics::invert_height(pos, params::window_height));
 
     // Movement
