@@ -15,6 +15,7 @@ public:
     virtual void load() = 0;
     virtual void unload();
 
+    const std::shared_ptr<Entity>& make_entity();
     std::vector<std::shared_ptr<Entity>> &getEntities() { return m_entities.list; }
 
 protected:

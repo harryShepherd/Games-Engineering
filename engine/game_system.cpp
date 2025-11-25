@@ -7,6 +7,7 @@ std::shared_ptr<Scene> GameSystem::m_active_scene;
 bool GameSystem::m_physics_enabled;
 float GameSystem::fps;
 
+// Central game loop.
 void GameSystem::start(unsigned int w, unsigned int h, const std::string &title, const float &time_step, bool physics_enabled)
 {
     sf::RenderWindow window(sf::VideoMode({w, h}), title);
@@ -61,23 +62,38 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
 
 float GameSystem::get_fps() { return fps; }
 
+// Sets the active scene.
 void GameSystem::setActiveScene(const std::shared_ptr<Scene> &active_sc)
 {
+    std::cout << "Changing active scene" << std::endl;
+
+    // TODO: Ensure the previous scene is unloaded correctly
+    //if(m_active_scene)
+    //    m_active_scene->unload();
+
     m_active_scene = active_sc;
+    m_active_scene->load();
+
+    std::cout << "Scene changed" << std::endl;
 }
 
+//Cleans the GameSystem.
+    // Unloads the scene.
 void GameSystem::clean()
 {
     m_active_scene->unload();
 }
 
+// Resets
 void GameSystem::reset() {}
 
+//Initialises
 void GameSystem::m_init()
 {
     return;
 }
 
+//Updates elements in the GameSystem.
 void GameSystem::m_update(const float &dt)
 {
     m_active_scene->update(dt);
@@ -90,12 +106,14 @@ void GameSystem::m_update(const float &dt)
     Renderer::update(dt);
 }
 
+//Renders elements in the GameSystem.
 void GameSystem::m_render()
 {
     m_active_scene->render();
     Renderer::render();
 }
 
+// Updates the scene.
 void Scene::update(const float &dt)
 {
     for(std::shared_ptr<Entity> &ent : m_entities.list)
@@ -104,6 +122,7 @@ void Scene::update(const float &dt)
     }
 }
 
+// Renders elements in the scene.
 void Scene::render()
 {
     for(std::shared_ptr<Entity> &ent : m_entities.list)
@@ -112,7 +131,15 @@ void Scene::render()
     }
 }
 
+// Unloads the scene
 void Scene::unload()
 {
     m_entities.list.clear();
+}
+
+// Makes an entity
+const std::shared_ptr<Entity>& Scene::make_entity() {
+    std::shared_ptr<Entity> entity = std::make_shared<Entity>();
+    m_entities.list.push_back(entity);
+    return m_entities.list.back();
 }
