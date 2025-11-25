@@ -10,39 +10,9 @@
 #include "engine_utils.hpp"
 #include "physics.hpp"
 
-std::shared_ptr<Scene> Scenes::testScene;
 std::shared_ptr<Scene> Scenes::menuScene;
 std::shared_ptr<Scene> Scenes::steeringScene;
 std::shared_ptr<Scene> Scenes::physicsScene;
-
-void TestScene::update(const float &dt)
-{
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-    {
-        GameSystem::reset();
-    }
-
-    #ifdef DEBUG
-    std::cout << "FPS: " << GameSystem::get_fps() << std::endl;
-    #endif
-
-    Scene::update(dt);
-}
-
-void TestScene::render()
-{
-    Scene::render();
-}
-
-void TestScene::load()
-{
-
-}
-
-void TestScene::unload()
-{
-
-}
 
 /// <summary>
 /// Updates the MenuScene
@@ -58,6 +28,11 @@ void MenuScene::update(const float& dt) {
     {
         Scenes::physicsScene = std::make_shared<PhysicsScene>();
         GameSystem::setActiveScene(Scenes::physicsScene);
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
+    {
+        Scenes::basicLevelScene = std::make_shared<BasicLevelScene>();
+        GameSystem::setActiveScene(Scenes::basicLevelScene);
     }
 
     Scene::update(dt);
@@ -79,7 +54,7 @@ void MenuScene::load() {
     _font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf"));
     _text.setFont(_font);
     _text.setCharacterSize(60);
-    _text.setString("Cube Zone\n\n\nPress 0 for Physics\nPress 1 for Steering");
+    _text.setString("Cube Zone\n\n\nPress 0 for Physics\nPress 1 for Steering\nPress 2 for the basic level scene");
 }
 
 /// <summary>
@@ -237,4 +212,17 @@ void PhysicsScene::unload(){
     b2DestroyBody(body);
   bodies.clear();
   b2DestroyWorld(world_id);
+}
+
+void BasicLevelScene::update(const float& dt) {
+
+}
+void BasicLevelScene::render() {
+
+}
+void BasicLevelScene::load() {
+
+}
+void BasicLevelScene::unload() {
+
 }

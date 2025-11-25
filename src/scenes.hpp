@@ -18,10 +18,10 @@ private:
 
 struct Scenes
 {
-    static std::shared_ptr<Scene> testScene;
     static std::shared_ptr<Scene> menuScene;
     static std::shared_ptr<Scene> steeringScene;
     static std::shared_ptr<Scene> physicsScene;
+    static std::shared_ptr<Scene> basicLevelScene;
 };
 
 class MenuScene : public Scene {
@@ -57,4 +57,14 @@ class PhysicsScene : public Scene
       b2WorldId world_id;
       std::vector<b2BodyId> bodies;
       std::vector<std::shared_ptr<sf::RectangleShape>> sprites;
+};
+
+class BasicLevelScene : public Scene
+{
+    public:
+        BasicLevelScene() = default;
+        void update(const float& dt) override;
+        void render() override;
+        void load() override;
+        void unload() override;
 };
