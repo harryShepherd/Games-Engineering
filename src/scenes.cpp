@@ -221,6 +221,13 @@ void BasicLevelScene::render() {
 
 }
 void BasicLevelScene::load() {
+    std::shared_ptr<Entity> player = make_entity();
+    player->set_position(sf::Vector2f(params::window_height / 2, params::window_height / 2));
+    std::shared_ptr<ShapeComponent> shape = player->add_component<ShapeComponent>();
+    shape->set_shape<sf::RectangleShape>(sf::Vector2f(10.0f, 10.0f));
+    shape->get_shape().setFillColor(sf::Color::Red);
+    player->add_component<KeyboardMovementComponent>();
+
 
 }
 void BasicLevelScene::unload() {
