@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine_utils.hpp"
 #define DEBUG
 
 struct params
@@ -30,4 +31,7 @@ struct params
         sf::Keyboard::S,   // Player Down
         sf::Keyboard::D,   // Player Right
     };
+
+    static constexpr char const* level_1 = "resources/levels/level1.txt";
+    static constexpr char const* level_2 = "resources/levels/level2.txt";
 };

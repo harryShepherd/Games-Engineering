@@ -9,10 +9,12 @@
 #include "ai_components.hpp"
 #include "engine_utils.hpp"
 #include "physics.hpp"
+#include "physics_comps.hpp"
 
 std::shared_ptr<Scene> Scenes::menuScene;
 std::shared_ptr<Scene> Scenes::steeringScene;
 std::shared_ptr<Scene> Scenes::physicsScene;
+std::shared_ptr<Scene> Scenes::basicLevelScene;
 
 /// <summary>
 /// Updates the MenuScene
@@ -214,15 +216,57 @@ void PhysicsScene::unload(){
   b2DestroyWorld(world_id);
 }
 
+void BasicLevelScene::m_load_level(const std::string &level)
+{
+    m_player = make_entity();
+    m_player->set_position(LevelSystem::get_start_pos());
+
+    // Create player
+    std::shared_ptr<ShapeComponent> shape = m_player->add_component<ShapeComponent>();
+    shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::player_size[0],params::player_size[1]));
+    shape->get_shape().setFillColor(sf::Color::Yellow);
+    shape->get_shape().setOrigin(sf::Vector2f(params::player_size[0]/2.f,params::player_size[1]/2.f));
+
+    // Add player physics component
+    std::shared_ptr<PlayerPhysicsComponent> component = 
+    m_player->add_component<PlayerPhysicsComponent>(sf::Vector2f(params::player_size[0],params::player_size[1]));
+
+    component->create_capsule_shape(
+        sf::Vector2f(params::player_size[0],params::player_size[1]),
+        params::player_weight, params::player_friction, params::player_restitution
+    );
+
+    // Create walls
+    std::vector<std::vector<sf::Vector2i>> wall_groups = LevelSystem::get_groups(LevelSystem::WALL);
+    for (const std::vector<sf::Vector2i> &walls : wall_groups) {
+        m_walls.push_back(make_entity());
+        m_walls.back()->add_component<PlatformComponent>(walls);
+    }
+}
+
 void BasicLevelScene::update(const float& dt) {
+    Scene::update(dt);
+    m_entities.update(dt);
+
+    if(LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END){
+        unload();
+        m_load_level(EngineUtils::GetRelativePath(params::level_2));
+    }
 
 }
+
 void BasicLevelScene::render() {
-
+    LevelSystem::render(Renderer::getWindow());
+    Scene::render();
+    m_entities.render();
 }
+
 void BasicLevelScene::load() {
-
+    m_load_level(EngineUtils::GetRelativePath(params::level_1));
 }
-void BasicLevelScene::unload() {
 
+void BasicLevelScene::unload() {
+    Scene::unload();
+    m_player.reset();
+    m_walls.clear();
 }
