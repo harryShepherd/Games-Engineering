@@ -230,13 +230,16 @@ void BasicLevelScene::m_load_level(const std::string &level)
     shape->get_shape().setOrigin(sf::Vector2f(params::player_size[0]/2.f,params::player_size[1]/2.f));
 
     // Add player physics component
-    std::shared_ptr<PlayerPhysicsComponent> component = 
-    m_player->add_component<PlayerPhysicsComponent>(sf::Vector2f(params::player_size[0],params::player_size[1]));
+    std::shared_ptr<PlayerControlComponent> component = 
+    m_player->add_component<PlayerControlComponent>(sf::Vector2f(params::player_size[0],params::player_size[1]));
 
-    component->create_capsule_shape(
-        sf::Vector2f(params::player_size[0],params::player_size[1]),
-        params::player_weight, params::player_friction, params::player_restitution
-    );
+    component->create_box_shape({params::player_size[0], params::player_size[1]}, 
+        params::player_weight, params::player_friction, params::player_restitution);
+
+    //component->create_capsule_shape(
+    //    sf::Vector2f(params::player_size[0],params::player_size[1]),
+    //    params::player_weight, params::player_friction, params::player_restitution
+    //);
 
     // Create walls
     std::vector<std::vector<sf::Vector2i>> wall_groups = LevelSystem::get_groups(LevelSystem::WALL);

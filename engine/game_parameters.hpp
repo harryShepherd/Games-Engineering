@@ -21,12 +21,12 @@ struct params
 
     static constexpr float tile_size = 40.0f;
 
-    static constexpr float player_size[2] = {20.f,25.f};
-    static constexpr float player_weight = 10.f;
-    static constexpr float player_jump = 40.f;
-    static constexpr float player_impulse = 100.f;
-    static constexpr float player_max_vel[2] = {200.f,400.f};
-    static constexpr float player_friction = 100.f;
+    static constexpr float player_size[2] = {20.f,20.f};
+    static constexpr float player_weight = 5.f;
+    static constexpr float player_jump = 10.f;
+    static constexpr float player_impulse = 350.f;
+    static constexpr float player_max_vel[2] = {500.f,400.f};
+    static constexpr float player_friction = 0.0f;
     static constexpr float player_restitution = 0.0f;
 
     static const std::map<std::string, sf::Keyboard::Key> controls;

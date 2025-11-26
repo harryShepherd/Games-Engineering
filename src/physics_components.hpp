@@ -49,16 +49,17 @@ protected:
     float m_mass;
 };
 
-class PlayerPhysicsComponent : public PhysicsComponent
+class PlayerControlComponent : public PhysicsComponent
 {
 public:
     void update(const float &dt) override;
-    explicit PlayerPhysicsComponent(Entity *p, const sf::Vector2f &size);
-    PlayerPhysicsComponent() = delete;
+    explicit PlayerControlComponent(Entity *p, const sf::Vector2f &size);
+    PlayerControlComponent() = delete;
 
 protected:
     b2Vec2 m_size;
     sf::Vector2f m_max_velocity;
+    sf::Vector2f m_direction{0.0f, 0.0f};
     bool m_grounded;
     float m_ground_speed;
 

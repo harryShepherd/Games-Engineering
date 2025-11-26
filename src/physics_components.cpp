@@ -110,7 +110,7 @@ void PlatformComponent::m_create_chain_shape(const std::vector<sf::Vector2i> &ti
 
     b2SurfaceMaterial material = b2DefaultSurfaceMaterial();
     material.friction = m_friction;
-    material.restitution = m_restitution;
+    material.restitution = 0.0f; //m_restitution;
     b2ChainDef chain_def = b2DefaultChainDef();
     chain_def.count = points.size();
     chain_def.points = points.data();
@@ -222,7 +222,7 @@ void PhysicsComponent::create_box_shape(const sf::Vector2f &size, float mass, fl
     shape_def.density = m_dynamic ? m_mass : 0.f;
     shape_def.material.friction = m_friction;
     shape_def.material.restitution = m_restitution;
-    b2Polygon polygon = b2MakeBox(Physics::sv2_to_bv2(size).x * 0.5f, Physics::sv2_to_bv2(size).y * 0.5f);
+    b2Polygon polygon = b2MakeRoundedBox(Physics::sv2_to_bv2(size).x * 0.4f, Physics::sv2_to_bv2(size).y * 0.4f, Physics::sv2_to_bv2(size).x * 0.25f);
     m_shape_id = b2CreatePolygonShape(m_body_id,&shape_def,&polygon);
 }
 
@@ -233,7 +233,7 @@ void PhysicsComponent::create_capsule_shape(const sf::Vector2f& size,float mass,
     //Create the fixture shape
     b2ShapeDef shape_def = b2DefaultShapeDef();
     shape_def.density = m_dynamic ? m_mass : 0.f;
-    shape_def.material.friction =   m_friction;
+    shape_def.material.friction = m_friction;
     shape_def.material.restitution = m_restitution;
     b2Vec2 b2_size = Physics::sv2_to_bv2(size);
     b2Capsule capsule;
@@ -243,7 +243,7 @@ void PhysicsComponent::create_capsule_shape(const sf::Vector2f& size,float mass,
     m_shape_id = b2CreateCapsuleShape(m_body_id,&shape_def,&capsule);
 }
 
-PlayerPhysicsComponent::PlayerPhysicsComponent(Entity *p, const sf::Vector2f &size) : PhysicsComponent(p, true)
+PlayerControlComponent::PlayerControlComponent(Entity *p, const sf::Vector2f &size) : PhysicsComponent(p, true)
 {
     m_size = Physics::sv2_to_bv2(size);
     m_max_velocity = sf::Vector2f(params::player_max_vel[0], params::player_max_vel[1]);
@@ -252,7 +252,7 @@ PlayerPhysicsComponent::PlayerPhysicsComponent(Entity *p, const sf::Vector2f &si
     b2Body_EnableSleep(m_body_id, false);
 }
 
-bool PlayerPhysicsComponent::is_grounded() const
+bool PlayerControlComponent::is_grounded() const
 {
     std::array<b2ContactData, 10> contacts;
     int count = get_contacts(contacts);
@@ -272,60 +272,55 @@ bool PlayerPhysicsComponent::is_grounded() const
     return false;
 }
 
-void PlayerPhysicsComponent::update(const float &dt)
+void PlayerControlComponent::update(const float &dt)
 {
     const sf::Vector2f pos = m_parent->get_position();
-
     b2Vec2 b2_pos = Physics::sv2_to_bv2(Physics::invert_height(pos, params::window_height));
 
-    // Movement
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left) ||
-        sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    if(sf::Keyboard::isKeyPressed(params::getControls().at("Left")))
+    {
+        m_direction.x = -1.0f;
+    }
+    else if(sf::Keyboard::isKeyPressed(params::getControls().at("Right")))
+    {
+        m_direction.x = 1.0f;
+    }
+    else
+    {
+        m_direction.x = 0.0f;
+    }
+
+    set_velocity({m_ground_speed * m_direction.x, get_velocity().y});
+
+    if(sf::Keyboard::isKeyPressed(params::getControls().at("Up")))
+    {
+        m_grounded = is_grounded();
+
+        if(m_grounded)
         {
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-            {
-                impulse({dt * m_ground_speed, 0});
-            }
-            else
-            {
-                impulse({-(dt * m_ground_speed), 0});
-            }
+            m_grounded = false;
+            impulse({0.0f, -params::player_jump});
         }
-        else
-        {
-            dampen({0.9f, 1.0f});
-        }
+    }
 
-        // Jump
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-        {
-            m_grounded = is_grounded();
+    dampen({1.0f, 1.0f});
 
-            if(m_grounded)
-            {
-                set_velocity(sf::Vector2f(get_velocity().x, 0.0f));
-                teleport(sf::Vector2f(pos.x, pos.y - 2.0f));
-                impulse(sf::Vector2f(0, -params::player_jump));
-            }
-        }
+    // Disable friction while we are in the air
+    if(!m_grounded)
+    {
+        m_grounded = is_grounded();
+        set_friction(0.0f);
+    }
+    else
+    {
+        set_friction(m_friction);
+    }
 
-        // Disable friction while we are in the air
-        if(!m_grounded)
-        {
-            m_grounded = is_grounded();
+    // Clamp velocity
+    sf::Vector2f v = get_velocity();
+    v.x = copysign(std::min(abs(v.x), m_max_velocity.x), v.x);
+    v.y = copysign(std::min(abs(v.y), m_max_velocity.y), v.y);
+    set_velocity(v);
 
-            set_friction(0.0f);
-        }
-        else
-        {
-            set_friction(m_friction);
-        }
-
-        // Clamp velocity
-        sf::Vector2f v = get_velocity();
-        v.x = copysign(std::min(abs(v.x), m_max_velocity.x), v.x);
-        v.y = copysign(std::min(abs(v.y), m_max_velocity.y), v.y);
-        set_velocity(v);
-
-        PhysicsComponent::update(dt);
+    PhysicsComponent::update(dt);
 }
