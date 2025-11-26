@@ -244,6 +244,19 @@ void BasicLevelScene::m_load_level(const std::string &level)
         m_walls.push_back(make_entity());
         m_walls.back()->add_component<PlatformComponent>(walls);
     }
+
+    // Create enemies
+    std::vector<std::vector<sf::Vector2i>> enemies = LevelSystem::get_groups(LevelSystem::ENEMY);
+    float enemyHeight = 10.0f;
+    float enemyWidth = 10.0f;
+    for (const std::vector<sf::Vector2i>& enemy : enemies) {
+        m_enemies.push_back(make_entity());
+        std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
+        shape->set_shape<sf::RectangleShape>(sf::Vector2f(10.0f, 10.0f));
+        shape->get_shape().setFillColor(sf::Color::Blue);
+        m_enemies.back()->add_component<SteeringComponent>(m_player.get(), 50.0f);
+        m_enemies.back()->add_component<PhysicsComponent>(sf::Vector2f(enemyHeight, enemyWidth));
+    }
 }
 
 void BasicLevelScene::update(const float& dt) {

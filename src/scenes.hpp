@@ -70,5 +70,6 @@ class BasicLevelScene : public Scene
     private:
         std::shared_ptr<Entity> m_player;
         std::vector<std::shared_ptr<Entity>> m_walls;
+        std::vector<std::shared_ptr<Entity>> m_enemies;
         void m_load_level(const std::string &level);
 };
