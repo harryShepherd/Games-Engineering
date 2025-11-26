@@ -16,6 +16,8 @@ public:
     float get_current_health();
 
     void take_damage(const float dmg);
+    void regain_health(const float health);
+    void increase_max_health(const float amount);
 
     explicit HealthComponent(Entity *p, float health);
 
