@@ -9,7 +9,7 @@
 #include "ai_components.hpp"
 #include "engine_utils.hpp"
 #include "physics.hpp"
-#include "physics_comps.hpp"
+#include "physics_components.hpp"
 
 std::shared_ptr<Scene> Scenes::menuScene;
 std::shared_ptr<Scene> Scenes::steeringScene;
