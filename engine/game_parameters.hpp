@@ -3,6 +3,7 @@
 #include "engine_utils.hpp"
 #include <map>
 #include <string>
+
 #define DEBUG
 
 struct params
@@ -32,11 +33,14 @@ struct params
 
     static constexpr char const* level_1 = "resources/levels/level1.txt";
     static constexpr char const* level_2 = "resources/levels/level2.txt";
-};
 
-const std::map<std::string, sf::Keyboard::Key> controls {
-    {"Up", sf::Keyboard::W },
-    {"Down", sf::Keyboard::S },
-    {"Left", sf::Keyboard::A },
-    {"Right", sf::Keyboard::D }
+    static const std::map<std::string, sf::Keyboard::Key>& getControls() {
+        static const std::map<std::string, sf::Keyboard::Key> controls{
+            {"Up", sf::Keyboard::W },
+            {"Down", sf::Keyboard::S },
+            {"Left", sf::Keyboard::A },
+            {"Right", sf::Keyboard::D }
+        };
+        return controls;
+    }
 };

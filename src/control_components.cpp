@@ -4,16 +4,16 @@
 
 void KeyboardMovementComponent::update(const float& dt) {
 	sf::Vector2f direction(0.0f, 0.0f);
-	if (sf::Keyboard::isKeyPressed(params::controls[1])) {
+	if (sf::Keyboard::isKeyPressed(params::getControls().at("Left"))) {
 		direction.x -= 1.0f;
 	}
-	if (sf::Keyboard::isKeyPressed(params::controls[3])) {
+	if (sf::Keyboard::isKeyPressed(params::getControls().at("Right"))) {
 		direction.x += 1.0f;
 	}
-	if (sf::Keyboard::isKeyPressed(params::controls[0])) {
+	if (sf::Keyboard::isKeyPressed(params::getControls().at("Up"))) {
 		direction.y -= 1.0f;
 	}
-	if (sf::Keyboard::isKeyPressed(params::controls[2])) {
+	if (sf::Keyboard::isKeyPressed(params::getControls().at("Down"))) {
 		direction.y += 1.0f;
 	}
 	move(direction * speed * (float)params::time_step);
