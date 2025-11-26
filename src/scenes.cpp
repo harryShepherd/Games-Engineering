@@ -246,16 +246,24 @@ void BasicLevelScene::m_load_level(const std::string &level)
     }
 
     // Create enemies
-    std::vector<std::vector<sf::Vector2i>> enemies = LevelSystem::get_groups(LevelSystem::ENEMY);
+    std::vector<sf::Vector2i> enemies = LevelSystem::find_tiles(LevelSystem::Tile::ENEMY);
+
     float enemyHeight = 10.0f;
     float enemyWidth = 10.0f;
-    for (const std::vector<sf::Vector2i>& enemy : enemies) {
+
+    for (const sf::Vector2i enemy_pos : enemies)
+    {
+        std::cout << "creating enemy at pos: ()" << enemy_pos.x << ", " << enemy_pos.y << ")" <<std::endl;
+
         m_enemies.push_back(make_entity());
+        m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 25.0f));
+
         std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
-        shape->set_shape<sf::RectangleShape>(sf::Vector2f(10.0f, 10.0f));
+        shape->set_shape<sf::RectangleShape>(sf::Vector2f(20.0f, 25.0f));
         shape->get_shape().setFillColor(sf::Color::Blue);
+
         m_enemies.back()->add_component<SteeringComponent>(m_player.get(), 50.0f);
-        m_enemies.back()->add_component<PhysicsComponent>(sf::Vector2f(enemyHeight, enemyWidth));
+        m_enemies.back()->add_component<PhysicsComponent>(true);
     }
 }
 
