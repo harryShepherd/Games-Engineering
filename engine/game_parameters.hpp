@@ -1,6 +1,8 @@
 #pragma once
 
 #include "engine_utils.hpp"
+#include <map>
+#include <string>
 #define DEBUG
 
 struct params
@@ -25,13 +27,16 @@ struct params
     static constexpr float player_max_vel[2] = {200.f,400.f};
     static constexpr float player_friction = 100.f;
     static constexpr float player_restitution = 0.0f;
-    static constexpr sf::Keyboard::Key controls[4] = {
-        sf::Keyboard::W,   // Player Up
-        sf::Keyboard::A,   // Player Left
-        sf::Keyboard::S,   // Player Down
-        sf::Keyboard::D,   // Player Right
-    };
+
+    static const std::map<std::string, sf::Keyboard::Key> controls;
 
     static constexpr char const* level_1 = "resources/levels/level1.txt";
     static constexpr char const* level_2 = "resources/levels/level2.txt";
+};
+
+const std::map<std::string, sf::Keyboard::Key> controls {
+    {"Up", sf::Keyboard::W },
+    {"Down", sf::Keyboard::S },
+    {"Left", sf::Keyboard::A },
+    {"Right", sf::Keyboard::D }
 };
