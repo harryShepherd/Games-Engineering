@@ -72,4 +72,5 @@ class BasicLevelScene : public Scene
         std::vector<std::shared_ptr<Entity>> m_walls;
         std::vector<std::shared_ptr<Entity>> m_enemies;
         void m_load_level(const std::string &level);
+        std::vector<sf::Vector2i> place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyMax);
 };
