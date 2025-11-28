@@ -345,7 +345,7 @@ bool EnemyShootingComponent::can_shoot_target() const
         return false;
     }
 
-    // Additional checks could include:
+    // Additional checks could/should include:
     // - Line of sight check
     // - Target being on screen
     // - Random chance to add variation to enemy behavior
