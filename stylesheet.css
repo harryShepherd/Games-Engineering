@@ -35,3 +35,16 @@
 	margin-bottom:5px;
 	max-height:80%;
 }
+
+.content img{
+	width:50%;
+}
+.playerContent{
+	
+}
+.enemyContent{
+	text-align:right;
+}
+.gameContent{
+	max-width:30%;
+}
