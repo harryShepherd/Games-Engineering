@@ -265,8 +265,10 @@ void BasicLevelScene::m_load_level(const std::string &level)
         shape->set_shape<sf::RectangleShape>(sf::Vector2f(20.0f, 25.0f));
         shape->get_shape().setFillColor(sf::Color::Blue);
 
-        m_enemies.back()->add_component<SteeringComponent>(m_player.get(), 50.0f);
-        m_enemies.back()->add_component<PhysicsComponent>(true);
+        std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(enemyHeight, enemyWidth));
+        component->create_box_shape({ 20, 20 },
+            params::player_weight, params::player_friction, params::player_restitution);
+        component->set_target(m_player);
     }
 }
 

@@ -1,5 +1,6 @@
 #include "ecm.hpp"
 #include "physics.hpp"
+#include "ai_components.hpp"
 
 class PlatformComponent : public Component
 {
@@ -64,4 +65,22 @@ protected:
     float m_ground_speed;
 
     bool is_grounded() const;
+};
+class EnemyControlComponent : public PhysicsComponent
+{
+    public:
+        void update(const float &dt) override;
+        explicit EnemyControlComponent(Entity *e, const sf::Vector2f &size);
+        EnemyControlComponent() = delete;
+        void set_target(std::shared_ptr<Entity>* targetEntity);
+    protected:
+        b2Vec2 m_size;
+        sf::Vector2f m_max_velocity;
+        sf::Vector2f m_direction{0.0f, 0.0f};
+        bool m_grounded;
+        float m_ground_speed;
+        SteeringOutput output;
+        std::shared_ptr<Entity> *target;
+
+        bool is_grounded() const;
 };

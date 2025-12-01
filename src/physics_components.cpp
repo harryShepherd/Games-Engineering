@@ -3,6 +3,7 @@
 #include "game_parameters.hpp"
 #include <array>
 #include <iostream>
+#include "ai_components.hpp"
 
 PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> &tile_group,
     float friction, float restitution) :
@@ -323,4 +324,90 @@ void PlayerControlComponent::update(const float &dt)
     set_velocity(v);
 
     PhysicsComponent::update(dt);
+}
+
+EnemyControlComponent::EnemyControlComponent(Entity *e, const sf::Vector2f &size) : PhysicsComponent(e, true)
+{
+    m_size = Physics::sv2_to_bv2(size);
+    m_max_velocity = sf::Vector2f(10.0f, 10.0f);
+    m_ground_speed = 10.0f;
+    m_grounded = false;
+    b2Body_EnableSleep(m_body_id, false);
+}
+
+bool EnemyControlComponent::is_grounded() const
+{
+    std::array<b2ContactData, 10> contacts;
+    int count = get_contacts(contacts);
+
+    if(count <= 0)
+        return false;
+    
+    const b2Vec2 &pos = b2Body_GetPosition(m_body_id);
+    const float half_y = m_size.y * 0.5f;
+
+    for(int i = 0; i < count; ++i)
+    {
+        if(contacts[i].manifold.normal.y == 1)
+            return true;
+    }
+
+    return false;
+}
+
+SteeringOutput output;
+
+void EnemyControlComponent::update(const float& dt)
+{
+    const sf::Vector2f pos = m_parent->get_position();
+    b2Vec2 b2_pos = Physics::sv2_to_bv2(Physics::invert_height(pos, params::window_height));
+
+    set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
+    auto distance = [](const sf::Vector2f& a, const sf::Vector2f& b) -> float {
+        return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+        };
+    //If target is further than 100 pixels away then seek.
+    if (distance(m_parent->get_position(), target->get()->get_position()) > 100.0f) {
+        output = SteeringBehaviours::seek(target->get()->get_position(), m_parent->get_position());
+    }
+    //If target is closer than 50 pixels away then flee.
+    else if (distance(m_parent->get_position(), target->get()->get_position()) < 50.0f) {
+        output = SteeringBehaviours::flee(target->get()->get_position(), m_parent->get_position());
+    }
+    m_direction.x = output.direction.x;
+    
+    if (output.direction.y > 0.5){
+        m_grounded = is_grounded();
+        if (m_grounded)
+        {
+            m_grounded = false;
+            impulse({ 0.0f, -20 });
+        }
+    }
+    //std::cout << "Output: " << output.direction.x << ", " << output.direction.y  << std::endl;
+
+    dampen({1.0f, 1.0f});
+
+    // Disable friction while in the air
+    if(!m_grounded)
+    {
+        m_grounded = is_grounded();
+        //set_friction(0.0f);
+    }
+    else
+    {
+        set_friction(m_friction);
+    }
+
+    // Clamp velocity
+    sf::Vector2f v = get_velocity();
+    v.x = copysign(std::min(abs(v.x), m_max_velocity.x), v.x);
+    v.y = copysign(std::min(abs(v.y), m_max_velocity.y), v.y);
+    set_velocity(v);
+
+    PhysicsComponent::update(dt);
+}
+
+void EnemyControlComponent::set_target(std::shared_ptr<Entity>* targetEntity) {
+    target = targetEntity;
 }
