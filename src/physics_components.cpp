@@ -330,7 +330,7 @@ EnemyControlComponent::EnemyControlComponent(Entity *e, const sf::Vector2f &size
 {
     m_size = Physics::sv2_to_bv2(size);
     m_max_velocity = sf::Vector2f(10.0f, 10.0f);
-    m_ground_speed = 10.0f;
+    m_ground_speed = 300.0f;
     m_grounded = false;
     b2Body_EnableSleep(m_body_id, false);
 }
@@ -367,16 +367,18 @@ void EnemyControlComponent::update(const float& dt)
         return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
         };
     //If target is further than 100 pixels away then seek.
-    if (distance(m_parent->get_position(), target->get_position()) > 100.0f) {
+    if (distance(m_parent->get_position(), target->get_position()) > 150.0f) {
         output = SteeringBehaviours::seek(target->get_position(), m_parent->get_position());
+        seeking = true;
     }
     //If target is closer than 50 pixels away then flee.
-    else if (distance(m_parent->get_position(), target->get_position()) < 50.0f) {
+    else if (distance(m_parent->get_position(), target->get_position()) < 100.0f) {
         output = SteeringBehaviours::flee(target->get_position(), m_parent->get_position());
+        seeking = false;
     }
     m_direction.x = output.direction.x;
     
-    if (output.direction.y > 0.5){
+    if (seeking && (output.direction.y > 0.5) || !seeking) {
         m_grounded = is_grounded();
         if (m_grounded)
         {
@@ -384,7 +386,6 @@ void EnemyControlComponent::update(const float& dt)
             impulse({ 0.0f, -20 });
         }
     }
-    //std::cout << "Output: " << output.direction.x << ", " << output.direction.y  << std::endl;
 
     dampen({1.0f, 1.0f});
 

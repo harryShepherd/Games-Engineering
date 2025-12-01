@@ -264,6 +264,7 @@ void BasicLevelScene::m_load_level(const std::string &level)
         std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
         shape->set_shape<sf::RectangleShape>(sf::Vector2f(enemyHeight, enemyWidth));
         shape->get_shape().setFillColor(sf::Color::Blue);
+        shape->get_shape().setOrigin(sf::Vector2f(enemyHeight / 2.f, enemyWidth / 2.f));
 
         std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(enemyHeight, enemyWidth));
         component->create_box_shape({ enemyHeight, enemyHeight },
