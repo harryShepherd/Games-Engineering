@@ -9,7 +9,6 @@
 #include "game_system.hpp"
 #include <cmath>
 
-// ==================== BulletComponent Implementation ====================
 
 BulletComponent::BulletComponent(Entity* p, const sf::Vector2f& direction, float speed, float damage, float lifetime)
     : Component(p), m_direction(direction), m_speed(speed), m_damage(damage),
@@ -194,7 +193,6 @@ void ShootingComponent::spawn_bullet(const sf::Vector2f& direction)
 //  Placeholder function incase required. Bullets will be cleaned by Entity Manager
 // }
 
-// ==================== PlayerShootingComponent Implementation ====================
 
 PlayerShootingComponent::PlayerShootingComponent(Entity* p, Scene* scene, int clip_size, float reload_time,
                                                  float fire_rate, float bullet_speed, float bullet_damage)
@@ -244,7 +242,6 @@ sf::Vector2f PlayerShootingComponent::get_shooting_direction() const
     return direction;
 }
 
-// ==================== EnemyShootingComponent Implementation ====================
 
 EnemyShootingComponent::EnemyShootingComponent(Entity* p, Scene* scene, Entity* target, int clip_size,
                                                float reload_time, float fire_rate,
