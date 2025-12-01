@@ -251,22 +251,22 @@ void BasicLevelScene::m_load_level(const std::string &level)
     // Create enemies
     std::vector<sf::Vector2i> enemies = LevelSystem::find_tiles(LevelSystem::Tile::ENEMY);
 
-    float enemyHeight = 10.0f;
-    float enemyWidth = 10.0f;
+    float enemyHeight = 20.0f;
+    float enemyWidth = 20.0f;
 
     for (const sf::Vector2i enemy_pos : enemies)
     {
         std::cout << "creating enemy at pos: ()" << enemy_pos.x << ", " << enemy_pos.y << ")" <<std::endl;
 
         m_enemies.push_back(make_entity());
-        m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 25.0f));
+        m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 20.0f));
 
         std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
-        shape->set_shape<sf::RectangleShape>(sf::Vector2f(20.0f, 25.0f));
+        shape->set_shape<sf::RectangleShape>(sf::Vector2f(enemyHeight, enemyWidth));
         shape->get_shape().setFillColor(sf::Color::Blue);
 
         std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(enemyHeight, enemyWidth));
-        component->create_box_shape({ 20, 20 },
+        component->create_box_shape({ enemyHeight, enemyHeight },
             params::player_weight, params::player_friction, params::player_restitution);
         component->set_target(m_player);
     }

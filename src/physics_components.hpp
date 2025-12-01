@@ -72,7 +72,7 @@ class EnemyControlComponent : public PhysicsComponent
         void update(const float &dt) override;
         explicit EnemyControlComponent(Entity *e, const sf::Vector2f &size);
         EnemyControlComponent() = delete;
-        void set_target(std::shared_ptr<Entity>* targetEntity);
+        void set_target(std::shared_ptr<Entity> targetEntity);
     protected:
         b2Vec2 m_size;
         sf::Vector2f m_max_velocity;
@@ -80,7 +80,7 @@ class EnemyControlComponent : public PhysicsComponent
         bool m_grounded;
         float m_ground_speed;
         SteeringOutput output;
-        std::shared_ptr<Entity> *target;
+        std::shared_ptr<Entity> target;
 
         bool is_grounded() const;
 };

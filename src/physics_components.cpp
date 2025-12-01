@@ -367,12 +367,12 @@ void EnemyControlComponent::update(const float& dt)
         return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
         };
     //If target is further than 100 pixels away then seek.
-    if (distance(m_parent->get_position(), target->get()->get_position()) > 100.0f) {
-        output = SteeringBehaviours::seek(target->get()->get_position(), m_parent->get_position());
+    if (distance(m_parent->get_position(), target->get_position()) > 100.0f) {
+        output = SteeringBehaviours::seek(target->get_position(), m_parent->get_position());
     }
     //If target is closer than 50 pixels away then flee.
-    else if (distance(m_parent->get_position(), target->get()->get_position()) < 50.0f) {
-        output = SteeringBehaviours::flee(target->get()->get_position(), m_parent->get_position());
+    else if (distance(m_parent->get_position(), target->get_position()) < 50.0f) {
+        output = SteeringBehaviours::flee(target->get_position(), m_parent->get_position());
     }
     m_direction.x = output.direction.x;
     
@@ -408,6 +408,6 @@ void EnemyControlComponent::update(const float& dt)
     PhysicsComponent::update(dt);
 }
 
-void EnemyControlComponent::set_target(std::shared_ptr<Entity>* targetEntity) {
+void EnemyControlComponent::set_target(std::shared_ptr<Entity> targetEntity) {
     target = targetEntity;
 }
