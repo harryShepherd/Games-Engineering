@@ -267,7 +267,7 @@ void BasicLevelScene::m_load_level(const std::string &level)
         shape->get_shape().setOrigin(sf::Vector2f(enemyHeight / 2.f, enemyWidth / 2.f));
 
         std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(enemyHeight, enemyWidth));
-        component->create_box_shape({ enemyHeight, enemyHeight },
+        component->create_box_shape({ enemyHeight-3, enemyWidth-3 },
             params::player_weight, params::player_friction, params::player_restitution);
         component->set_target(m_player);
     }
