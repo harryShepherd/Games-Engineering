@@ -244,12 +244,14 @@ void BasicLevelScene::m_load_level(const std::string &level)
     }
 
     // Create enemies
-    std::vector<sf::Vector2i> enemies = LevelSystem::find_tiles(LevelSystem::Tile::ENEMY);
+    std::vector<sf::Vector2i> emptyTiles = LevelSystem::find_tiles(LevelSystem::Tile::EMPTY);
 
     float enemyHeight = 20.0f;
     float enemyWidth = 20.0f;
 
-    for (const sf::Vector2i enemy_pos : enemies)
+    std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, 10);
+
+    for (const sf::Vector2i enemy_pos : enemyPositions)
     {
         m_enemies.push_back(make_entity());
         m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 20.0f));
@@ -290,4 +292,18 @@ void BasicLevelScene::unload() {
     Scene::unload();
     m_player.reset();
     m_walls.clear();
+}
+
+std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyMax) {
+    std::vector<sf::Vector2i> enemyPositions;
+    std::random_device random_device;
+    std::default_random_engine engine(random_device());
+    std::uniform_int_distribution<> distribution(0, tiles.size() - 1);
+
+    for (size_t i = 0; i < enemyMax; i++)
+    {
+        enemyPositions.push_back(tiles[distribution(engine)]);
+    }
+
+    return enemyPositions;
 }
