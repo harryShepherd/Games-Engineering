@@ -27,8 +27,6 @@ class SteeringComponent : public Component {
 		bool valid_move(const sf::Vector2f&) const;
 	public:
 		void update(const float&) override;
-		void move(const sf::Vector2f&);
-		void move(float x, float y);
 		void render() override {}
 		explicit SteeringComponent(Entity* p, Entity* player, float max_speed);
 		SteeringComponent() = delete;

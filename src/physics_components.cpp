@@ -359,6 +359,8 @@ SteeringOutput output;
 
 void EnemyControlComponent::update(const float& dt)
 {
+    // Need to make the enemy consider whether or not its movement is valid
+        // This should be based on whether or not the next tile is empty.
     const sf::Vector2f pos = m_parent->get_position();
     b2Vec2 b2_pos = Physics::sv2_to_bv2(Physics::invert_height(pos, params::window_height));
 
