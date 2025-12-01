@@ -9,7 +9,7 @@
 #pragma once
 #include "ecm.hpp"
 #include "physics.hpp"
-#include "physics_comps.hpp"
+#include "physics_components.hpp"
 #include "game_system.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
