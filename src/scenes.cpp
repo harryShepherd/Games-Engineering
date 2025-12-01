@@ -236,11 +236,6 @@ void BasicLevelScene::m_load_level(const std::string &level)
     component->create_box_shape({params::player_size[0], params::player_size[1]}, 
         params::player_weight, params::player_friction, params::player_restitution);
 
-    //component->create_capsule_shape(
-    //    sf::Vector2f(params::player_size[0],params::player_size[1]),
-    //    params::player_weight, params::player_friction, params::player_restitution
-    //);
-
     // Create walls
     std::vector<std::vector<sf::Vector2i>> wall_groups = LevelSystem::get_groups(LevelSystem::WALL);
     for (const std::vector<sf::Vector2i> &walls : wall_groups) {
@@ -256,7 +251,7 @@ void BasicLevelScene::m_load_level(const std::string &level)
 
     for (const sf::Vector2i enemy_pos : enemies)
     {
-        std::cout << "creating enemy at pos: ()" << enemy_pos.x << ", " << enemy_pos.y << ")" <<std::endl;
+        std::cout << "creating enemy at pos: (" << enemy_pos.x << ", " << enemy_pos.y << ")" <<std::endl;
 
         m_enemies.push_back(make_entity());
         m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 20.0f));
@@ -281,7 +276,6 @@ void BasicLevelScene::update(const float& dt) {
         unload();
         m_load_level(EngineUtils::GetRelativePath(params::level_2));
     }
-
 }
 
 void BasicLevelScene::render() {

@@ -126,6 +126,7 @@ void PlatformComponent::m_create_chain_shape(const std::vector<sf::Vector2i> &ti
 
 void PhysicsComponent::update(const float &dt)
 {
+    b2Body_ApplyForce(m_body_id, {get_velocity().x, m_mass * params::g}, b2Body_GetPosition(m_body_id), false);
     m_parent->set_position(Physics::invert_height(Physics::bv2_to_sv2(b2Body_GetPosition(m_body_id)), params::window_height));
     m_parent->set_rotation((180 / 3.1415f) * b2Rot_GetAngle(b2Body_GetRotation(m_body_id)));
 }
@@ -329,7 +330,7 @@ void PlayerControlComponent::update(const float &dt)
 EnemyControlComponent::EnemyControlComponent(Entity *e, const sf::Vector2f &size) : PhysicsComponent(e, true)
 {
     m_size = Physics::sv2_to_bv2(size);
-    m_max_velocity = sf::Vector2f(10.0f, 10.0f);
+    m_max_velocity = sf::Vector2f(params::player_max_vel[0], params::player_max_vel[1]);
     m_ground_speed = 300.0f;
     m_grounded = false;
     b2Body_EnableSleep(m_body_id, false);
@@ -360,14 +361,13 @@ SteeringOutput output;
 void EnemyControlComponent::update(const float& dt)
 {
     // Need to make the enemy consider whether or not its movement is valid
-        // This should be based on whether or not the next tile is empty.
+    // This should be based on whether or not the next tile is empty.
     const sf::Vector2f pos = m_parent->get_position();
     b2Vec2 b2_pos = Physics::sv2_to_bv2(Physics::invert_height(pos, params::window_height));
 
-    set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
     auto distance = [](const sf::Vector2f& a, const sf::Vector2f& b) -> float {
         return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-        };
+        }; 
     //If target is further than 100 pixels away then seek.
     if (distance(m_parent->get_position(), target->get_position()) > 150.0f) {
         output = SteeringBehaviours::seek(target->get_position(), m_parent->get_position());
@@ -378,17 +378,22 @@ void EnemyControlComponent::update(const float& dt)
         output = SteeringBehaviours::flee(target->get_position(), m_parent->get_position());
         seeking = false;
     }
+
     m_direction.x = output.direction.x;
+
+    set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
     
-    if (seeking && (output.direction.y > 0.5) || !seeking) {
+    std::cout << "output.direction.y: " << output.direction.y << std::endl;
+
+    if (seeking && (output.direction.y < -0.1) || !seeking) {
         m_grounded = is_grounded();
         if (m_grounded)
         {
             m_grounded = false;
-            impulse({ 0.0f, -20 });
+            impulse({ 0.0f, -params::player_jump });
         }
     }
-
+    
     dampen({1.0f, 1.0f});
 
     // Disable friction while in the air
