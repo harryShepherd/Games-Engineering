@@ -382,8 +382,6 @@ void EnemyControlComponent::update(const float& dt)
     m_direction.x = output.direction.x;
 
     set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
-    
-    std::cout << "output.direction.y: " << output.direction.y << std::endl;
 
     if (seeking && (output.direction.y < -0.1) || !seeking) {
         m_grounded = is_grounded();

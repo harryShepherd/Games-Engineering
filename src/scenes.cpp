@@ -251,8 +251,6 @@ void BasicLevelScene::m_load_level(const std::string &level)
 
     for (const sf::Vector2i enemy_pos : enemies)
     {
-        std::cout << "creating enemy at pos: (" << enemy_pos.x << ", " << enemy_pos.y << ")" <<std::endl;
-
         m_enemies.push_back(make_entity());
         m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 20.0f));
 
