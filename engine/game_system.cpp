@@ -42,7 +42,6 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
 
             if(event.type == sf::Event::Resized)
             {
-                std::cout << "Window resized to " << event.size.width << "x" << event.size.height << std::endl;
                 view.setSize({
                     static_cast<float>(event.size.width),
                     static_cast<float>(event.size.height)
