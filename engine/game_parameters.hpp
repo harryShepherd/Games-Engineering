@@ -29,6 +29,14 @@ struct params
     static constexpr float player_friction = 0.0f;
     static constexpr float player_restitution = 0.0f;
 
+    static constexpr float enemy_size[2] = { 20.f,20.f };
+    static constexpr float enemy_weight = 5.f;
+    static constexpr float enemy_jump = 10.f;
+    static constexpr float enemy_impulse = 350.f;
+    static constexpr float enemy_max_vel[2] = { 200.f,200.f };
+    static constexpr float enemy_friction = 0.0f;
+    static constexpr float enemy_restitution = 0.0f;
+
     static const std::map<std::string, sf::Keyboard::Key> controls;
 
     static constexpr char const* level_1 = "resources/levels/level1.txt";
