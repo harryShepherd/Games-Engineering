@@ -102,6 +102,8 @@ void BasicLevelScene::update(const float& dt) {
     Scene::update(dt);
     m_entities.update(dt);
 
+    GameSystem::moveCamera(m_player->get_position());
+
     if(LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END){
         unload();
         m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), params::enemy_count);

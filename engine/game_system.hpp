@@ -29,6 +29,7 @@ public:
     static void clean();
     static void reset();
     static void setActiveScene(const std::shared_ptr<Scene>& active_sc);
+    static void moveCamera(sf::Vector2f pos);
     static float get_fps();
 
 private:

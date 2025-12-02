@@ -16,7 +16,7 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
     m_physics_enabled = physics_enabled;
 
     m_init();
-    Renderer::init(window);
+    Renderer::init(window, view);
 
     sf::Event event;
 
@@ -71,6 +71,12 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
 }
 
 float GameSystem::get_fps() { return fps; }
+
+void GameSystem::moveCamera(sf::Vector2f pos)
+{
+    Renderer::getView().setCenter(pos);
+    Renderer::getWindow().setView(Renderer::getView());
+}
 
 // Sets the active scene.
 void GameSystem::setActiveScene(const std::shared_ptr<Scene> &active_sc)
