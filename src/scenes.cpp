@@ -1,15 +1,12 @@
 #include <iostream>
 #include <random>
 #include "scenes.hpp"
-#include "level_system.hpp"
-#include "renderer.hpp"
-#include "game_parameters.hpp"
+#include <renderer.hpp>
+#include <game_parameters.hpp>
 #include "graphic_components.hpp"
-#include "control_components.hpp"
 #include "ai_components.hpp"
-#include "engine_utils.hpp"
-#include "physics.hpp"
-#include "physics_components.hpp"
+#include <level_system.hpp>
+#include "control_components.hpp"
 
 std::shared_ptr<Scene> Scenes::menuScene;
 std::shared_ptr<Scene> Scenes::steeringScene;
@@ -74,7 +71,6 @@ void SteeringScene::load() {
     std::shared_ptr<ShapeComponent> shape = player->add_component<ShapeComponent>();
     shape->set_shape<sf::RectangleShape>(sf::Vector2f(10.0f, 10.0f));
     shape->get_shape().setFillColor(sf::Color::Red);
-    player->add_component<KeyboardMovementComponent>();
 
     
     std::random_device dev;
