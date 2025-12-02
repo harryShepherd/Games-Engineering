@@ -3,17 +3,24 @@
 
 static std::queue<const sf::Drawable *> sprites;
 static sf::RenderWindow *window;
+static sf::View *view;
 
 // Initialise the render window
-void Renderer::init(sf::RenderWindow &win)
+void Renderer::init(sf::RenderWindow &win, sf::View &v)
 {
     window = &win;
+    view = &v;
 }
 
 // Get the render window
 sf::RenderWindow &Renderer::getWindow()
 {
     return *window;
+}
+
+sf::View &Renderer::getView()
+{
+    return *view;
 }
 
 // Shutdown the renderer

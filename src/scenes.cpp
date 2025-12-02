@@ -102,7 +102,17 @@ void BasicLevelScene::update(const float& dt) {
     Scene::update(dt);
     m_entities.update(dt);
 
-    GameSystem::moveCamera(m_player->get_position());
+    // have the camera slightly follow the player's mouse position 
+    sf::Vector2i mouse_pos = sf::Mouse::getPosition(Renderer::getWindow());
+    sf::Vector2f mouse_world_pos(
+        static_cast<float>(mouse_pos.x - (mouse_pos.x / 2)),
+        static_cast<float>(mouse_pos.y - (mouse_pos.y / 2))
+    );
+
+    GameSystem::moveCamera({
+        m_player->get_position().x + (mouse_world_pos.x / 10.0f),
+        m_player->get_position().y + (mouse_world_pos.y / 12.5f) // y-axis will have less impact on the camera
+    });
 
     if(LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END){
         unload();
