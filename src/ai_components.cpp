@@ -42,7 +42,6 @@ SteeringOutput SteeringBehaviours::flee(const sf::Vector2f& target, const sf::Ve
 
 //Checks if the entity is making a valid move.
 bool SteeringOutput::check_valid_move(const sf::Vector2f& pos, SteeringOutput steering) {
-	std::vector<sf::Vector2i> wallTiles = LevelSystem::find_tiles(LevelSystem::Tile::WALL);
 	return true;
 }
 /// <summary>
