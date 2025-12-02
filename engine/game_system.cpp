@@ -10,7 +10,8 @@ float GameSystem::fps;
 // Central game loop.
 void GameSystem::start(unsigned int w, unsigned int h, const std::string &title, const float &time_step, bool physics_enabled)
 {
-    sf::RenderWindow window(sf::VideoMode({w, h}), title);
+    sf::RenderWindow window({w, h}, title);
+    sf::View view = window.getDefaultView();
 
     m_physics_enabled = physics_enabled;
 
@@ -37,6 +38,15 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
                 window.close();
                 clean();
                 return;
+            }
+
+            if(event.type == sf::Event::Resized)
+            {
+                view.setSize({
+                    static_cast<float>(event.size.width),
+                    static_cast<float>(event.size.height)
+                });
+                window.setView(view);
             }
         }
 
