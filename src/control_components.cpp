@@ -91,9 +91,10 @@ void PlayerControlComponent::update(const float& dt)
 EnemyControlComponent::EnemyControlComponent(Entity* e, const sf::Vector2f& size) : PhysicsComponent(e, true)
 {
     m_size = Physics::sv2_to_bv2(size);
-    m_max_velocity = sf::Vector2f(params::player_max_vel[0], params::player_max_vel[1]);
+    m_max_velocity = sf::Vector2f(params::enemy_max_vel[0], params::enemy_max_vel[1]);
     m_ground_speed = 300.0f;
     m_grounded = false;
+    m_seeking = true;
     b2Body_EnableSleep(m_body_id, false);
 }
 
@@ -129,27 +130,27 @@ void EnemyControlComponent::update(const float& dt)
     auto distance = [](const sf::Vector2f& a, const sf::Vector2f& b) -> float {
         return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
         };
-    //If target is further than 100 pixels away then seek.
+    //If target is further than 200 pixels away then seek.
     if (distance(m_parent->get_position(), target->get_position()) > 150.0f) {
         output = SteeringBehaviours::seek(target->get_position(), m_parent->get_position());
-        seeking = true;
+        m_seeking = true;
     }
-    //If target is closer than 50 pixels away then flee.
+    //If target is closer than 100 pixels away then flee.
     else if (distance(m_parent->get_position(), target->get_position()) < 100.0f) {
         output = SteeringBehaviours::flee(target->get_position(), m_parent->get_position());
-        seeking = false;
+        m_seeking = false;
     }
 
     m_direction.x = output.direction.x;
 
     set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
 
-    if (seeking && (output.direction.y < -0.1) || !seeking) {
+    if (m_seeking && (output.direction.y < -0.1) || !m_seeking) {
         m_grounded = is_grounded();
         if (m_grounded)
         {
             m_grounded = false;
-            impulse({ 0.0f, -params::player_jump });
+            impulse({ 0.0f, -params::enemy_jump });
         }
     }
 

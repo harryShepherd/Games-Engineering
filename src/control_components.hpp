@@ -33,7 +33,7 @@ class EnemyControlComponent : public PhysicsComponent
         float m_ground_speed;
         SteeringOutput output;
         std::shared_ptr<Entity> target;
-        bool seeking;
+        bool m_seeking;
 
         bool is_grounded() const;
 };

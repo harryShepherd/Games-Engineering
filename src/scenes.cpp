@@ -90,13 +90,13 @@ void BasicLevelScene::m_load_level(const std::string &level)
         m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 20.0f));
 
         std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
-        shape->set_shape<sf::RectangleShape>(sf::Vector2f(enemyHeight, enemyWidth));
+        shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
         shape->get_shape().setFillColor(sf::Color::Blue);
         shape->get_shape().setOrigin(sf::Vector2f(enemyHeight / 2.f, enemyWidth / 2.f));
 
-        std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(enemyHeight, enemyWidth));
-        component->create_box_shape({ enemyHeight-3, enemyWidth-3 },
-            params::player_weight, params::player_friction, params::player_restitution);
+        std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
+        component->create_box_shape({ params::enemy_size[0]-3, params::enemy_size[1]-3 },
+            params::enemy_weight, params::enemy_friction, params::enemy_restitution);
         component->set_target(m_player);
     }
 }

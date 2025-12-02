@@ -9,7 +9,8 @@ struct SteeringOutput {
 	// Direction of Travel
 	sf::Vector2f direction;
 	// Rotation of Travel
-	float rotation;
+	float rotation = 0;
+	static bool check_valid_move(const sf::Vector2f&, SteeringOutput steering);
 };
 
 /// <summary>
@@ -24,7 +25,6 @@ class SteeringComponent : public Component {
 	protected:
 		Entity* _player;
 		float _max_speed;
-		bool valid_move(const sf::Vector2f&) const;
 	public:
 		void update(const float&) override;
 		void render() override {}
