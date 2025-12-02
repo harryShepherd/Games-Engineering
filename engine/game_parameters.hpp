@@ -29,6 +29,7 @@ struct params
     static constexpr float player_friction = 0.0f;
     static constexpr float player_restitution = 0.0f;
 
+    static constexpr float enemy_count = 0;
     static constexpr float enemy_size[2] = { 20.f,20.f };
     static constexpr float enemy_weight = 5.f;
     static constexpr float enemy_jump = 10.f;
@@ -39,8 +40,21 @@ struct params
 
     static const std::map<std::string, sf::Keyboard::Key> controls;
 
-    static constexpr char const* level_1 = "resources/levels/level1.txt";
-    static constexpr char const* level_2 = "resources/levels/level2.txt";
+    static const std::map<int, std::string>& getLevels() {
+        static const std::map<int, std::string> levels{
+            {1, "resources/levels/level1.txt" },
+            {2, "resources/levels/level2.txt" },
+            {3, "resources/levels/level3.txt" },
+            {4, "resources/levels/level4.txt" },
+            {5, "resources/levels/level5.txt" },
+            {6, "resources/levels/level6.txt" },
+            {7, "resources/levels/level7.txt" },
+            {8, "resources/levels/level8.txt" },
+            {9, "resources/levels/level9.txt" },
+            {10, "resources/levels/level10.txt" }
+        };
+        return levels;
+    }
 
     static const std::map<std::string, sf::Keyboard::Key>& getControls() {
         static const std::map<std::string, sf::Keyboard::Key> controls{

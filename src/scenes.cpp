@@ -49,7 +49,7 @@ void MenuScene::load() {
 /// </summary>
 void MenuScene::unload(){}
 
-void BasicLevelScene::m_load_level(const std::string &level)
+void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
 {
     LevelSystem::load_level(level, params::tile_size);
 
@@ -79,10 +79,7 @@ void BasicLevelScene::m_load_level(const std::string &level)
     // Create enemies
     std::vector<sf::Vector2i> emptyTiles = LevelSystem::find_tiles(LevelSystem::Tile::EMPTY);
 
-    float enemyHeight = 20.0f;
-    float enemyWidth = 20.0f;
-
-    std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, 10);
+    std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, enemyCount);
 
     for (const sf::Vector2i enemy_pos : enemyPositions)
     {
@@ -92,7 +89,7 @@ void BasicLevelScene::m_load_level(const std::string &level)
         std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
         shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
         shape->get_shape().setFillColor(sf::Color::Blue);
-        shape->get_shape().setOrigin(sf::Vector2f(enemyHeight / 2.f, enemyWidth / 2.f));
+        shape->get_shape().setOrigin(sf::Vector2f(params::enemy_size[0] / 2.f, params::enemy_size[1] / 2.f));
 
         std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
         component->create_box_shape({ params::enemy_size[0]-3, params::enemy_size[1]-3 },
@@ -107,7 +104,7 @@ void BasicLevelScene::update(const float& dt) {
 
     if(LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END){
         unload();
-        m_load_level(EngineUtils::GetRelativePath(params::level_2));
+        m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), params::enemy_count);
     }
 }
 
@@ -118,7 +115,8 @@ void BasicLevelScene::render() {
 }
 
 void BasicLevelScene::load() {
-    m_load_level(EngineUtils::GetRelativePath(params::level_1));
+    int enemyCount = params::enemy_count;
+    m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), enemyCount);
 }
 
 void BasicLevelScene::unload() {
@@ -139,4 +137,13 @@ std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf
     }
 
     return enemyPositions;
+}
+
+std::string BasicLevelScene::pick_level_randomly() {
+    std::random_device random_device;
+    std::default_random_engine engine(random_device());
+    std::uniform_int_distribution<> distribution(1, params::getLevels().size() - 1);
+
+    std::string level = params::getLevels().at(distribution(engine));
+    return level;
 }
