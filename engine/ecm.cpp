@@ -175,12 +175,7 @@ Entity::~Entity()
             m_components.end()
         );
     }
-
-    if(m_components.size() > 0)
-    {
-        throw std::runtime_error("Can't delete entity - someone is grabbing a component.");
-    }
-
+    
     m_components.clear();
 }
 

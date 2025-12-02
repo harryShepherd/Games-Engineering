@@ -123,7 +123,7 @@ void LevelSystem::build_sprites()
             sprite->setSize(sf::Vector2f(m_tile_size, m_tile_size));
             sprite->setFillColor(get_color(get_tile({x, y})));
             
-            m_sprites.push_back(move(sprite));
+            m_sprites.push_back(std::move(sprite));
         }
     }
 }
@@ -290,6 +290,6 @@ bool LevelSystem::in_group(const sf::Vector2i &pos, const std::vector<sf::Vector
     for (const sf::Vector2i &p : group)
     {
         if (p == pos) { return true; }
-        return false;
     }
+    return false;
 }
