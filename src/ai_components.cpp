@@ -16,6 +16,8 @@ SteeringOutput SteeringBehaviours::seek(const sf::Vector2f& target, const sf::Ve
 	steering.direction = steering.direction/length(steering.direction);
 	steering.rotation = 0.0f;
 
+	bool valid = SteeringOutput::check_valid_move(self, steering);
+
 	return steering;
 }
 
@@ -34,9 +36,15 @@ SteeringOutput SteeringBehaviours::flee(const sf::Vector2f& target, const sf::Ve
 	steering.direction = steering.direction/length(steering.direction);
 	steering.rotation = 0.0f;
 
+	bool valid = SteeringOutput::check_valid_move(self, steering);
 	return steering;
 }
 
+//Checks if the entity is making a valid move.
+bool SteeringOutput::check_valid_move(const sf::Vector2f& pos, SteeringOutput steering) {
+	std::vector<sf::Vector2i> wallTiles = LevelSystem::find_tiles(LevelSystem::Tile::WALL);
+	return true;
+}
 /// <summary>
 /// Updates the entity(s).
 /// </summary>
@@ -48,11 +56,4 @@ void SteeringComponent::update(const float& dt) {
 SteeringComponent::SteeringComponent(Entity* p, Entity* player, float max_speed):
 	_player(player), _max_speed(max_speed), Component(p){ }
 
-//Checks if the entity is making a valid move.
-	// This is temporary and should change when terrain factors in more.
-bool SteeringComponent::valid_move(const sf::Vector2f& pos) const {
-	if (pos.x <0.0f || pos.x > params::window_width || pos.y < 0.0f || pos.y > params::window_height) {
-		return false;
-	}
-	return true;
-}
+
