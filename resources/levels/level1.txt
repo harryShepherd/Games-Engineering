@@ -6,13 +6,13 @@ w                               w
 w                               w
 w                               w
 w                               w
-ws      n                       w
+ws                              w
 wwww   www                      w
-wwwwwwwwwww                     w
-wwww   wwwww     n              w
+wwww   wwww                     w
+wwww   wwwww                    w
 wwww   wwwwww   www             w
 wwww   wwwwwww  www             w
 wwww   wwwwwwwwwwww            ee
 wwww   wwwww    www            ee
 wwww   wwwww    www            ee
-wwww   wwwww    wwwwwwwwwwwwwwwww
+wwwwwwwwwwww    wwwwwwwwwwwwwwwww
