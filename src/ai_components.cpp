@@ -35,6 +35,7 @@ SteeringOutput SteeringBehaviours::flee(const sf::Vector2f& target, const sf::Ve
 	steering.direction = self - target;
 	steering.direction = steering.direction/length(steering.direction);
 	steering.rotation = steering_rotation(steering);
+		
 
 	bool valid = SteeringOutput::check_valid_move(self, steering);
 	return steering;
@@ -45,14 +46,14 @@ bool SteeringOutput::check_valid_move(const sf::Vector2f& pos, SteeringOutput st
 	return true;
 }
 
-float steering_rotation(SteeringOutput output) {
+float steering_rotation(SteeringOutput output)
+{
+	float rotation = 0.0f;
 	if (output.direction.x > 0)
 	{
-		output.rotation = 0.0f;
+		rotation = 180.0f;
 	}
-	else {
-		output.rotation = 180.0f;
-	}
+	return rotation;
 }
 
 /// <summary>

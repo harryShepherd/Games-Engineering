@@ -29,7 +29,7 @@ struct params
     static constexpr float player_friction = 0.0f;
     static constexpr float player_restitution = 0.0f;
 
-    static constexpr float enemy_count = 0;
+    static constexpr float enemy_count = 10;
     static constexpr float enemy_size[2] = { 20.f,20.f };
     static constexpr float enemy_weight = 5.f;
     static constexpr float enemy_jump = 10.f;
