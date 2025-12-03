@@ -14,7 +14,7 @@ SteeringOutput SteeringBehaviours::seek(const sf::Vector2f& target, const sf::Ve
 	SteeringOutput steering;
 	steering.direction = target - self;
 	steering.direction = steering.direction/length(steering.direction);
-	steering.rotation = 0.0f;
+	steering.rotation = steering_rotation(steering);
 
 	bool valid = SteeringOutput::check_valid_move(self, steering);
 
@@ -34,7 +34,8 @@ SteeringOutput SteeringBehaviours::flee(const sf::Vector2f& target, const sf::Ve
 	SteeringOutput steering;
 	steering.direction = self - target;
 	steering.direction = steering.direction/length(steering.direction);
-	steering.rotation = 0.0f;
+	steering.rotation = steering_rotation(steering);
+		
 
 	bool valid = SteeringOutput::check_valid_move(self, steering);
 	return steering;
@@ -44,6 +45,17 @@ SteeringOutput SteeringBehaviours::flee(const sf::Vector2f& target, const sf::Ve
 bool SteeringOutput::check_valid_move(const sf::Vector2f& pos, SteeringOutput steering) {
 	return true;
 }
+
+float steering_rotation(SteeringOutput output)
+{
+	float rotation = 0.0f;
+	if (output.direction.x > 0)
+	{
+		rotation = 180.0f;
+	}
+	return rotation;
+}
+
 /// <summary>
 /// Updates the entity(s).
 /// </summary>
