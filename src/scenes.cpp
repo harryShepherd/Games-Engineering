@@ -117,7 +117,11 @@ void BasicLevelScene::update(const float& dt) {
     });
 
     if(LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END){
-        int enemyCount = this->enemyCount + 1;
+        int enemyCount = this->enemyCount;
+        if (this->enemyCount + 1 <= 50)
+        {
+            enemyCount = this->enemyCount + 1;
+        }
         unload();
         m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), enemyCount);
     }
