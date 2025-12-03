@@ -19,6 +19,7 @@ void MenuScene::update(const float& dt) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0)) 
     {
         Scenes::basicLevelScene = std::make_shared<BasicLevelScene>();
+        Scenes::basicLevelScene->set_enemy_count(9);
         GameSystem::setActiveScene(Scenes::basicLevelScene);
     } 
 
@@ -52,6 +53,7 @@ void MenuScene::unload(){}
 void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
 {
     LevelSystem::load_level(level, params::tile_size);
+    this->set_enemy_count(enemyCount);
 
     m_player = make_entity();
     m_player->set_position(LevelSystem::get_start_pos());
@@ -79,7 +81,7 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
     // Create enemies
     std::vector<sf::Vector2i> emptyTiles = LevelSystem::find_tiles(LevelSystem::Tile::EMPTY);
 
-    std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, enemyCount);
+    std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, this->enemyCount);
 
     for (const sf::Vector2i enemy_pos : enemyPositions)
     {
@@ -115,8 +117,13 @@ void BasicLevelScene::update(const float& dt) {
     });
 
     if(LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END){
+        int enemyCount = this->enemyCount;
+        if (this->enemyCount + 1 <= 50)
+        {
+            enemyCount = this->enemyCount + 1;
+        }
         unload();
-        m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), params::enemy_count);
+        m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), enemyCount);
     }
 }
 
@@ -127,8 +134,7 @@ void BasicLevelScene::render() {
 }
 
 void BasicLevelScene::load() {
-    int enemyCount = params::enemy_count;
-    m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), enemyCount);
+    m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), this->enemyCount);
 }
 
 void BasicLevelScene::unload() {
