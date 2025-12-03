@@ -11,6 +11,7 @@ struct SteeringOutput {
 	// Rotation of Travel
 	float rotation = 0;
 	static bool check_valid_move(const sf::Vector2f&, SteeringOutput steering);
+	float steering_rotation(SteeringOutput output);
 };
 
 /// <summary>
