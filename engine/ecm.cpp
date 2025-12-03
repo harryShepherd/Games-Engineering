@@ -155,6 +155,24 @@ void Entity::set_visible(bool visible)
 }
 
 /// <summary>
+/// Gets the facing direction of the entity (for sprite mirroring).
+/// </summary>
+/// <returns>True if facing right, false if facing left.</returns>
+bool Entity::is_facing_right() const
+{
+    return m_facing_right;
+}
+
+/// <summary>
+/// Sets the facing direction of the entity (for sprite mirroring).
+/// </summary>
+/// <param name="facing_right">True to face right, false to face left.</param>
+void Entity::set_facing_right(bool facing_right)
+{
+    m_facing_right = facing_right;
+}
+
+/// <summary>
 /// Deletes the entity.
 /// </summary>
 Entity::~Entity()
