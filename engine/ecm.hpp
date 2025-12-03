@@ -67,6 +67,11 @@ public:
     void set_to_delete();
     bool is_visible() const;
     void set_visible(bool visible);
+
+    // Facing direction for sprite mirroring (true = right, false = left)
+    bool is_facing_right() const;
+    void set_facing_right(bool facing_right);
+
 protected:
     std::vector<std::shared_ptr<Component>> m_components;
     sf::Vector2f m_position;
@@ -74,6 +79,7 @@ protected:
     bool m_alive = true;            // should be updated
     bool m_visible = true;          // should be rendered
     bool m_for_deletion = false;    // should be deleted
+    bool m_facing_right = true;     // for sprite mirroring
 };
 
 struct EntityManager

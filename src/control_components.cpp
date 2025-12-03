@@ -43,14 +43,19 @@ void PlayerControlComponent::update(const float& dt)
     if (sf::Keyboard::isKeyPressed(params::getControls().at("Left")))
     {
         m_direction.x = -1.0f;
+        // Set sprite to face left
+        m_parent->set_facing_right(false);
     }
     else if (sf::Keyboard::isKeyPressed(params::getControls().at("Right")))
     {
         m_direction.x = 1.0f;
+        // Set sprite to face right
+        m_parent->set_facing_right(true);
     }
     else
     {
         m_direction.x = 0.0f;
+        // Keep current facing direction when not moving
     }
 
     set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
@@ -142,6 +147,17 @@ void EnemyControlComponent::update(const float& dt)
     }
 
     m_direction.x = output.direction.x;
+
+    // Update sprite facing based on movement direction
+    if (m_direction.x < -0.1f) {
+        // Moving left
+        m_parent->set_facing_right(false);
+    }
+    else if (m_direction.x > 0.1f) {
+        // Moving right
+        m_parent->set_facing_right(true);
+    }
+    // If direction is near zero, keep current facing
 
     set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
 

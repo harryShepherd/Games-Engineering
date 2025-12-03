@@ -58,17 +58,30 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
     m_player = make_entity();
     m_player->set_position(LevelSystem::get_start_pos());
 
-    // Create player
-    std::shared_ptr<ShapeComponent> shape = m_player->add_component<ShapeComponent>();
-    shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::player_size[0],params::player_size[1]));
-    shape->get_shape().setFillColor(sf::Color::Yellow);
-    shape->get_shape().setOrigin(sf::Vector2f(params::player_size[0]/2.f,params::player_size[1]/2.f));
+    // Create player with sprite
+    std::shared_ptr<SpriteComponent> playerSprite = m_player->add_component<SpriteComponent>();
+
+    // Try to load player sprite, fallback to colored rectangle if it fails
+    if (playerSprite->load_texture(EngineUtils::GetRelativePath("resources/sprites/player_sprite.png")))
+    {
+        playerSprite->set_size(sf::Vector2f(params::player_size[0], params::player_size[1]));
+        playerSprite->set_origin_center();
+    }
+    else
+    {
+        // Fallback to shape if texture loading fails
+        std::cout << "Failed to load player sprite, using fallback shape" << std::endl;
+        std::shared_ptr<ShapeComponent> shape = m_player->add_component<ShapeComponent>();
+        shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::player_size[0],params::player_size[1]));
+        shape->get_shape().setFillColor(sf::Color::Yellow);
+        shape->get_shape().setOrigin(sf::Vector2f(params::player_size[0]/2.f,params::player_size[1]/2.f));
+    }
 
     // Add player physics component
-    std::shared_ptr<PlayerControlComponent> component = 
+    std::shared_ptr<PlayerControlComponent> component =
     m_player->add_component<PlayerControlComponent>(sf::Vector2f(params::player_size[0],params::player_size[1]));
 
-    component->create_box_shape({params::player_size[0], params::player_size[1]}, 
+    component->create_box_shape({params::player_size[0], params::player_size[1]},
         params::player_weight, params::player_friction, params::player_restitution);
 
     // Create walls
@@ -88,10 +101,24 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
         m_enemies.push_back(make_entity());
         m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 20.0f));
 
-        std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
-        shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
-        shape->get_shape().setFillColor(sf::Color::Blue);
-        shape->get_shape().setOrigin(sf::Vector2f(params::enemy_size[0] / 2.f, params::enemy_size[1] / 2.f));
+        // Create enemy with sprite
+        std::shared_ptr<SpriteComponent> enemySprite = m_enemies.back()->add_component<SpriteComponent>();
+
+        // Try to load enemy sprite, fallback to colored rectangle if it fails
+        if (enemySprite->load_texture(EngineUtils::GetRelativePath("resources/sprites/enemy_sprite.png")))
+        {
+            enemySprite->set_size(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
+            enemySprite->set_origin_center();
+        }
+        else
+        {
+            // Fallback to shape if texture loading fails
+            std::cout << "Failed to load enemy sprite, using fallback shape" << std::endl;
+            std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
+            shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
+            shape->get_shape().setFillColor(sf::Color::Blue);
+            shape->get_shape().setOrigin(sf::Vector2f(params::enemy_size[0] / 2.f, params::enemy_size[1] / 2.f));
+        }
 
         std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
         component->create_box_shape({ params::enemy_size[0]-3, params::enemy_size[1]-3 },
