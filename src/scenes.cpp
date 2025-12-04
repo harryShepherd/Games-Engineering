@@ -436,8 +436,7 @@ std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf
     std::default_random_engine engine(random_device());
     std::uniform_int_distribution<> distribution(0, tiles.size() - 1);
     sf::Vector2i chosenPosition;
-
-    for (size_t i = 0; i < enemyCount; i++)
+    for (size_t i = 0; i < this->enemyCount; i++)
     {
         chosenPosition = tiles[distribution(engine)];
         enemyPositions.push_back(sf::Vector2i(chosenPosition.x * params::tile_size, chosenPosition.y * params::tile_size));
