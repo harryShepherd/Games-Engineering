@@ -415,6 +415,7 @@ void BasicLevelScene::render() {
 }
 
 void BasicLevelScene::load() {
+    this->currentLevel = 0;
     m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), this->enemyCount);
 }
 
@@ -449,8 +450,14 @@ std::string BasicLevelScene::pick_level_randomly() {
     std::random_device random_device;
     std::default_random_engine engine(random_device());
     std::uniform_int_distribution<> distribution(1, params::getLevels().size());
+    int levelInt = 0;
+    do
+    {
+        levelInt = distribution(engine);
 
-    std::string level = params::getLevels().at(distribution(engine));
+    } while (this->currentLevel == levelInt);
+    this->currentLevel = levelInt;
+    std::string level = params::getLevels().at(this->currentLevel);
     return level;
 }
 
