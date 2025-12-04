@@ -435,10 +435,12 @@ std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf
     std::random_device random_device;
     std::default_random_engine engine(random_device());
     std::uniform_int_distribution<> distribution(0, tiles.size() - 1);
+    sf::Vector2i chosenPosition;
 
     for (size_t i = 0; i < enemyCount; i++)
     {
-        enemyPositions.push_back(tiles[distribution(engine)]);
+        chosenPosition = tiles[distribution(engine)];
+        enemyPositions.push_back(sf::Vector2i(chosenPosition.x * params::tile_size, chosenPosition.y * params::tile_size));
     }
 
     return enemyPositions;
@@ -447,7 +449,7 @@ std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf
 std::string BasicLevelScene::pick_level_randomly() {
     std::random_device random_device;
     std::default_random_engine engine(random_device());
-    std::uniform_int_distribution<> distribution(1, params::getLevels().size() - 1);
+    std::uniform_int_distribution<> distribution(1, params::getLevels().size());
 
     std::string level = params::getLevels().at(distribution(engine));
     return level;
