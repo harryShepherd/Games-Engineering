@@ -132,6 +132,8 @@ void GameSystem::m_render()
 // Updates the scene.
 void Scene::update(const float &dt)
 {
+    std::cout << "FPS: " << GameSystem::get_fps() << std::endl;
+
     for(std::shared_ptr<Entity> &ent : m_entities.list)
     {
         ent->update(dt);
