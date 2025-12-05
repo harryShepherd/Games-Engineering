@@ -437,7 +437,7 @@ std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf
     std::default_random_engine engine(random_device());
     std::uniform_int_distribution<> distribution(0, tiles.size() - 1);
     sf::Vector2i chosenPosition;
-    for (size_t i = 0; i < this->enemyCount; i++)
+    for (size_t i = 0; i < enemyCount; i++)
     {
         chosenPosition = tiles[distribution(engine)];
         enemyPositions.push_back(sf::Vector2i(chosenPosition.x * params::tile_size, chosenPosition.y * params::tile_size));
@@ -465,7 +465,7 @@ void BasicLevelScene::add_enemies(int enemyCount, std::vector<sf::Vector2i> posi
     for (size_t i = 0; i < enemyCount; i++)
     {
         m_enemies.push_back(make_entity());
-        m_enemies.back()->set_position(sf::Vector2f(positions.at(i).x * 40.0f, positions.at(i).y * 40.0f));
+        m_enemies.back()->set_position(sf::Vector2f(positions.at(i).x, positions.at(i).y));
 
         // Create enemy with sprite
         std::shared_ptr<SpriteComponent> enemySprite = m_enemies.back()->add_component<SpriteComponent>();
