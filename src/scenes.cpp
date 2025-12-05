@@ -50,10 +50,17 @@ void MenuScene::render() {
 /// Loads the font and text into the menu scene.
 /// </summary>
 void MenuScene::load() {
+    GameSystem::moveCamera(sf::Vector2f(params::window_width / 2.0f, params::window_height / 2.0f));
+
     _font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf"));
     _text.setFont(_font);
     _text.setCharacterSize(60);
     _text.setString("Cube Zone\n\n\nPress 0 for Basic Level");
+
+    // Center the menu text
+    sf::FloatRect textBounds = _text.getLocalBounds();
+    _text.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
+    _text.setPosition(params::window_width / 2.0f, params::window_height / 2.0f);
 }
 
 /// <summary>
@@ -90,10 +97,10 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
         m_death_text.setPosition(params::window_width / 2.0f, params::window_height / 2.0f);
     }
 
-    // Initialize reload UI
+    // Initialise reload UI
     if (!m_reload_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
     {
-        std::cout << "Error: Could not load reload UI font" << std::endl;
+        std::cout << "ERROR: Could not load reload UI font!" << std::endl;
     }
     else
     {
@@ -355,7 +362,7 @@ void BasicLevelScene::update(const float& dt) {
     else if (LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END)
     {
         // Fallback: if player touches END tile before portal spawns (shouldn't happen normally)
-        std::cout << "Player reached END tile, loading next level..." << std::endl;
+        std::cout << "Player reached END tile (fallback)! Loading next level..." << std::endl;
         int enemyCount = this->enemyCount;
         if (this->enemyCount + 1 <= 50)
         {
