@@ -5,24 +5,31 @@
 
 void ShapeComponent::update(const float &dt) {
   _shape->setPosition(m_parent->get_position());
-  
-  // Get current scale to preserve size
-  sf::Vector2f currentScale = _shape->getScale();
-  float scaleX = std::abs(currentScale.x);
-  float scaleY = currentScale.y;
-  
-  // Mirror shape based on facing direction
-  if (!m_parent->is_facing_right())
+  if (this->m_parent->is_visible())
   {
-    _shape->setScale(-scaleX, scaleY);
-  }
-  else
-  {
-    _shape->setScale(scaleX, scaleY);
+	  // Get current scale to preserve size
+	  sf::Vector2f currentScale = _shape->getScale();
+	  float scaleX = std::abs(currentScale.x);
+	  float scaleY = currentScale.y;
+
+	  // Mirror shape based on facing direction
+	  if (!m_parent->is_facing_right())
+	  {
+		  _shape->setScale(-scaleX, scaleY);
+	  }
+	  else
+	  {
+		  _shape->setScale(scaleX, scaleY);
+	  }
   }
 }
 
-void ShapeComponent::render() { Renderer::queue(_shape.get()); }
+void ShapeComponent::render() { 
+	if (this->m_parent->is_visible())
+	{
+		Renderer::queue(_shape.get());
+	}
+}
 
 sf::Shape& ShapeComponent::get_shape() const { return *_shape; }
 
@@ -39,26 +46,32 @@ void SpriteComponent::update(const float &dt)
 {
 	m_sprite->setPosition(m_parent->get_position());
 	
-	// Get current scale to preserve size
-	sf::Vector2f currentScale = m_sprite->getScale();
-	float scaleX = std::abs(currentScale.x);
-	float scaleY = currentScale.y;
-	
-	// Mirror sprite based on facing direction
-	// If facing left, flip horizontally using negative scale
-	if (!m_parent->is_facing_right())
+	if (this->m_parent->is_visible())
 	{
-		m_sprite->setScale(-scaleX, scaleY);
-	}
-	else
-	{
-		m_sprite->setScale(scaleX, scaleY);
+		// Get current scale to preserve size
+		sf::Vector2f currentScale = m_sprite->getScale();
+		float scaleX = std::abs(currentScale.x);
+		float scaleY = currentScale.y;
+
+		// Mirror sprite based on facing direction
+		// If facing left, flip horizontally using negative scale
+		if (!m_parent->is_facing_right())
+		{
+			m_sprite->setScale(-scaleX, scaleY);
+		}
+		else
+		{
+			m_sprite->setScale(scaleX, scaleY);
+		}
 	}
 }
 
 void SpriteComponent::render()
 {
-	Renderer::queue(m_sprite.get());
+	if (this->m_parent->is_visible())
+	{
+		Renderer::queue(m_sprite.get());
+	}
 }
 
 bool SpriteComponent::load_texture(const std::string& filepath)

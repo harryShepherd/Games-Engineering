@@ -361,27 +361,30 @@ EnemyShootingComponent::EnemyShootingComponent(Entity* p, Scene* scene, Entity* 
 
 void EnemyShootingComponent::update(const float& dt)
 {
-    // Clamp dt to prevent burst fire
-    float safe_dt = (dt > 0.1f) ? 0.016f : dt;
-
-    // Update base shooting logic
-    ShootingComponent::update(safe_dt);
-
-    // Update random delay timer with clamped dt
-    if (m_random_delay_timer > 0.0f)
+    if (this->m_parent->is_alive())
     {
-        m_random_delay_timer -= safe_dt;
-    }
+        // Clamp dt to prevent burst fire
+        float safe_dt = (dt > 0.1f) ? 0.016f : dt;
 
-    // Check if we should shoot at target
-    if (can_shoot_target())
-    {
-        sf::Vector2f direction = m_predictive ? get_predictive_direction() : get_shooting_direction();
+        // Update base shooting logic
+        ShootingComponent::update(safe_dt);
 
-        if (shoot(direction))
+        // Update random delay timer with clamped dt
+        if (m_random_delay_timer > 0.0f)
         {
-            // Shot was successful, generate new random delay
-            generate_random_delay();
+            m_random_delay_timer -= safe_dt;
+        }
+
+        // Check if we should shoot at target
+        if (can_shoot_target())
+        {
+            sf::Vector2f direction = m_predictive ? get_predictive_direction() : get_shooting_direction();
+
+            if (shoot(direction))
+            {
+                // Shot was successful, generate new random delay
+                generate_random_delay();
+            }
         }
     }
 }
