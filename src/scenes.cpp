@@ -36,6 +36,7 @@ void MenuScene::update(const float& dt) {
     // Only trigger on key press (not hold)
     if (key_is_pressed && !key_was_pressed)
     {
+        unload();
         // Create a fresh scene (important when returning from death)
         Scenes::basicLevelScene = std::make_shared<BasicLevelScene>();
         Scenes::basicLevelScene->set_enemy_count(9);
@@ -75,7 +76,9 @@ void MenuScene::load() {
 /// <summary>
 /// Unloads the MenuScene
 /// </summary>
-void MenuScene::unload(){}
+void MenuScene::unload(){
+    Scene::unload();
+}
 
 /// <summary>
 /// Updates the DeathScene
@@ -88,6 +91,7 @@ void DeathScene::update(const float& dt) {
     // Only trigger on NEW key press
     if (key_is_pressed && !key_was_pressed)
     {
+        unload();
         // Return to menu
         GameSystem::setActiveScene(Scenes::menuScene);
     }
@@ -142,10 +146,11 @@ void DeathScene::load() {
 /// <summary>
 /// Unloads the DeathScene
 /// </summary>
-void DeathScene::unload(){}
+void DeathScene::unload(){
+    Scene::unload();
+}
 
 // Basic Level Scene
-
 void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
 {
     LevelSystem::load_level(level, params::tile_size);
