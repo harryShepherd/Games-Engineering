@@ -18,6 +18,15 @@ std::shared_ptr<Scene> Scenes::basicLevelScene;
 /// </summary>
 /// <param name="dt">Delta Time - Sets frame rate</param>
 void MenuScene::update(const float& dt) {
+    // Static flag to reset camera once when menu becomes active
+    static bool camera_reset_this_session = false;
+
+    if (!camera_reset_this_session)
+    {
+        GameSystem::moveCamera(sf::Vector2f(params::window_width / 2.0f, params::window_height / 2.0f));
+        camera_reset_this_session = true;
+    }
+
     // Static variable to track if key was pressed last frame (prevents holding key)
     static bool key_was_pressed = false;
 
@@ -30,6 +39,7 @@ void MenuScene::update(const float& dt) {
         Scenes::basicLevelScene = std::make_shared<BasicLevelScene>();
         Scenes::basicLevelScene->set_enemy_count(9);
         GameSystem::setActiveScene(Scenes::basicLevelScene);
+        camera_reset_this_session = false; // Reset flag so camera resets next time we come back to menu
     }
 
     key_was_pressed = key_is_pressed;
@@ -50,8 +60,6 @@ void MenuScene::render() {
 /// Loads the font and text into the menu scene.
 /// </summary>
 void MenuScene::load() {
-    GameSystem::moveCamera(sf::Vector2f(params::window_width / 2.0f, params::window_height / 2.0f));
-
     _font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf"));
     _text.setFont(_font);
     _text.setCharacterSize(60);
@@ -196,13 +204,13 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
             m_player.get(),
             10,     // clip_size - 10 shots before reload
             2.0f,   // reload_time - 2 seconds to reload
-            2.0f,   // fire_rate - 2.0 shots/second
+            2.0f,   // fire_rate - 2.0 shots/second (shoot every 0.5 seconds!)
             250.0f, // bullet_speed - medium speed bullets
             2.0f    // bullet_damage - 2 damage per hit (50 hits to kill player)
         );
         enemyShooter->set_shooting_range(400.0f);  // 400 pixel range
-        enemyShooter->set_shoot_chance(1.0f);  // 100% chance
-        enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays
+        enemyShooter->set_shoot_chance(1.0f);  // 100% chance - ALWAYS shoot when ready!
+        enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays: 0-0.5 seconds!
     }
 }
 
