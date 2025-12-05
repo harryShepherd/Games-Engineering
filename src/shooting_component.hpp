@@ -111,12 +111,7 @@ public:
 
     void update(const float& dt) override;
 
-    // Set the shoot button (default is left mouse button)
-    void set_shoot_key(sf::Mouse::Button button) { m_shoot_button = button; }
-
 private:
-    sf::Mouse::Button m_shoot_button;
-
     // Calculate shooting direction based on mouse position
     sf::Vector2f get_shooting_direction() const;
 };
