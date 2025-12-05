@@ -32,7 +32,7 @@ void EntityManager::render()
 {
     for(std::shared_ptr<Entity> &ent : list)
     {
-        if(ent->is_visible())
+        if(ent->is_visible() && ent->is_alive())
         {
             ent->render();
         }

@@ -4,7 +4,7 @@
 void HealthComponent::kill()
 {
     std::cout << "I am dead." << std::endl;
-    m_parent->set_to_delete();
+    m_parent->set_alive(false);
 }
 
 float HealthComponent::get_current_health() { return current_health; }
@@ -21,6 +21,17 @@ void HealthComponent::take_damage(const float dmg)
     if(current_health <= 0.0f) 
     {
         kill();
+    }
+}
+
+void HealthComponent::regain_health(const float health)
+{
+    if (this->current_health + health >= this->max_health)
+    {
+        this->current_health = this->max_health;
+    }
+    else {
+        this->current_health = current_health + health;
     }
 }
 
