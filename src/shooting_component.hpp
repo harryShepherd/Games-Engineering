@@ -2,11 +2,8 @@
 // Created by Megan McLeod on 26/11/2025.
 //
 
-#ifndef SHOOTING_COMPONENT_H
-#define SHOOTING_COMPONENT_H
-
-
 #pragma once
+
 #include "ecm.hpp"
 #include "physics.hpp"
 #include "physics_components.hpp"
@@ -161,5 +158,3 @@ private:
     // Generate new random delay
     void generate_random_delay();
 };
-
-#endif //SHOOTING_COMPONENT_H
