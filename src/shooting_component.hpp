@@ -14,6 +14,7 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
+#include <functional>
 
 // Forward declarations
 class BulletComponent;
@@ -23,9 +24,14 @@ class Scene;
 class BulletComponent : public Component
 {
 public:
-    BulletComponent(Entity* p, const sf::Vector2f& direction, float speed, float damage, float lifetime);
+    BulletComponent(Entity* p, const sf::Vector2f& direction, float speed, float damage, float lifetime, Entity* owner = nullptr);
     void update(const float& dt) override;
     void render() override;
+
+    void check_collision(const std::vector<std::shared_ptr<Entity>>& entities);
+
+    // Callback for when this bullet kills an enemy
+    void set_on_kill_callback(std::function<void(sf::Vector2f)> callback) { m_on_kill_callback = callback; }
 
     float get_damage() const { return m_damage; }
     bool is_expired() const { return m_lifetime_remaining <= 0.0f; }
@@ -37,6 +43,8 @@ private:
     float m_damage;
     float m_lifetime_remaining;
     float m_max_lifetime;
+    Entity* m_owner;  // Who shot this bullet (don't collide with them)
+    std::function<void(sf::Vector2f)> m_on_kill_callback;  // Called when bullet kills something
 };
 
 /// Base shooting component - handles shooting logic, ammo, and reloading
@@ -128,10 +136,23 @@ public:
     // Set whether enemy should lead the target (predictive shooting)
     void set_predictive_shooting(bool enable) { m_predictive = enable; }
 
+    // Set randomness parameters
+    void set_shoot_chance(float chance) { m_shoot_chance = chance; } // 0.0 - 1.0 probability per frame
+    void set_random_delay_range(float min_delay, float max_delay) {
+        m_random_delay_min = min_delay;
+        m_random_delay_max = max_delay;
+    }
+
 private:
     Entity* m_target;
     float m_shooting_range;
     bool m_predictive;
+
+    // Randomness parameters
+    float m_shoot_chance;           // Probability of shooting when conditions are met
+    float m_random_delay_min;       // Minimum delay between shot attempts
+    float m_random_delay_max;       // Maximum delay between shot attempts
+    float m_random_delay_timer;     // Current delay countdown
 
     // Calculate shooting direction towards target
     sf::Vector2f get_shooting_direction() const;
@@ -140,7 +161,13 @@ private:
     sf::Vector2f get_predictive_direction() const;
 
     // Check if target is in range and visible
-    bool can_shoot_target() const;
+    bool can_shoot_target();
+
+    // Check line of sight to target
+    bool has_line_of_sight() const;
+
+    // Generate new random delay
+    void generate_random_delay();
 };
 
 #endif //SHOOTING_COMPONENT_H

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ecm.hpp"
 #include "physics.hpp"
 

@@ -7,6 +7,8 @@
 #include "ai_components.hpp"
 #include <level_system.hpp>
 #include "control_components.hpp"
+#include "shooting_component.hpp"
+#include "character_components.hpp"
 
 std::shared_ptr<Scene> Scenes::menuScene;
 std::shared_ptr<Scene> Scenes::basicLevelScene;
@@ -16,12 +18,21 @@ std::shared_ptr<Scene> Scenes::basicLevelScene;
 /// </summary>
 /// <param name="dt">Delta Time - Sets frame rate</param>
 void MenuScene::update(const float& dt) {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0)) 
+    // Static variable to track if key was pressed last frame (prevents holding key)
+    static bool key_was_pressed = false;
+
+    bool key_is_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Num0);
+
+    // Only trigger on key press (not hold)
+    if (key_is_pressed && !key_was_pressed)
     {
+        // Create a fresh scene (important when returning from death)
         Scenes::basicLevelScene = std::make_shared<BasicLevelScene>();
         Scenes::basicLevelScene->set_enemy_count(9);
         GameSystem::setActiveScene(Scenes::basicLevelScene);
-    } 
+    }
+
+    key_was_pressed = key_is_pressed;
 
     Scene::update(dt);
 }
@@ -54,6 +65,43 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
 {
     LevelSystem::load_level(level, params::tile_size);
     this->set_enemy_count(enemyCount);
+    m_portal_spawned = false;
+    m_portal.reset();
+
+    // Initialise death screen
+    m_player_dead = false;
+
+    // Use the same font as menu (vcr_mono.ttf which exists)
+    if (!m_death_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
+    {
+        std::cout << "Error: Could not load death screen font" << std::endl;
+        // Don't crash - just won't show text
+    }
+    else
+    {
+        m_death_text.setFont(m_death_font);
+        m_death_text.setCharacterSize(60);
+        m_death_text.setFillColor(sf::Color::Red);
+        m_death_text.setString("YOU DIED\n\nPress 0 to return to menu");
+
+        // Center the text
+        sf::FloatRect textBounds = m_death_text.getLocalBounds();
+        m_death_text.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
+        m_death_text.setPosition(params::window_width / 2.0f, params::window_height / 2.0f);
+    }
+
+    // Initialize reload UI
+    if (!m_reload_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
+    {
+        std::cout << "Error: Could not load reload UI font" << std::endl;
+    }
+    else
+    {
+        m_reload_text.setFont(m_reload_font);
+        m_reload_text.setCharacterSize(40);
+        m_reload_text.setFillColor(sf::Color::Red);
+        m_reload_text.setString("RELOADING...");
+    }
 
     m_player = make_entity();
     m_player->set_position(LevelSystem::get_start_pos());
@@ -83,6 +131,12 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
 
     component->create_box_shape({params::player_size[0], params::player_size[1]},
         params::player_weight, params::player_friction, params::player_restitution);
+
+    // Add player health component
+    m_player->add_component<HealthComponent>(100.0f);
+
+    // Add player shooting component
+    m_player->add_component<PlayerShootingComponent>(this);
 
     // Create walls
     std::vector<std::vector<sf::Vector2i>> wall_groups = LevelSystem::get_groups(LevelSystem::WALL);
@@ -124,14 +178,144 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
         component->create_box_shape({ params::enemy_size[0]-3, params::enemy_size[1]-3 },
             params::enemy_weight, params::enemy_friction, params::enemy_restitution);
         component->set_target(m_player);
+
+        // Add enemy health component
+        m_enemies.back()->add_component<HealthComponent>(30.0f);
+
+        // Add enemy shooting component with balanced parameters
+        // Parameters: (entity, scene, target, clip_size, reload_time, fire_rate, bullet_speed, bullet_damage)
+        auto enemyShooter = m_enemies.back()->add_component<EnemyShootingComponent>(
+            this,
+            m_player.get(),
+            8,      // clip_size - 8 shots before reload (was 4)
+            4.0f,   // reload_time - 2.5 seconds to reload (was 4)
+            1.0f,   // fire_rate - 1.0 shots/secons
+            250.0f, // bullet_speed - medium speed bullets
+            4.0f    // bullet_damage (player has 100 HP = 25 hits to kill)
+        );
+        enemyShooter->set_shooting_range(350.0f);  // Increased range (was 250)
+        enemyShooter->set_shoot_chance(0.30f);  // 30% chance per frame
+        enemyShooter->set_random_delay_range(1.0f, 3.0f);
     }
 }
 
+int BasicLevelScene::count_alive_enemies() const
+{
+    int count = 0;
+    for (const auto& enemy : m_enemies)
+    {
+        if (enemy && enemy->is_alive() && !enemy->to_be_deleted())
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+void BasicLevelScene::spawn_portal()
+{
+    if (m_portal_spawned || m_portal)
+    {
+        return; // Portal already spawned
+    }
+
+    // Use last enemy position if available, otherwise fallback to END tile
+    sf::Vector2f portalPos = m_last_enemy_position;
+
+    // Fallback to END tile if no enemy position tracked
+    if (portalPos.x == 0.0f && portalPos.y == 0.0f)
+    {
+        std::vector<sf::Vector2i> endTiles = LevelSystem::find_tiles(LevelSystem::Tile::END);
+        if (!endTiles.empty())
+        {
+            portalPos = LevelSystem::get_tile_pos(endTiles[0]);
+            portalPos += sf::Vector2f(params::tile_size / 2.0f, params::tile_size / 2.0f);
+        }
+    }
+
+    // Create portal entity
+    m_portal = make_entity();
+    m_portal->set_position(portalPos);
+
+    // Add visual component - BRIGHT GREEN CIRCLE (very visible!)
+    std::shared_ptr<ShapeComponent> shape = m_portal->add_component<ShapeComponent>();
+    shape->set_shape<sf::CircleShape>(params::tile_size * 0.8f); // Bigger circle
+    shape->get_shape().setFillColor(sf::Color(0, 255, 0, 220)); // Bright green, almost opaque
+    shape->get_shape().setOutlineColor(sf::Color::Yellow); // Yellow outline
+    shape->get_shape().setOutlineThickness(3.0f);
+    shape->get_shape().setOrigin(params::tile_size * 0.8f, params::tile_size * 0.8f);
+
+    m_portal_spawned = true;
+
+    std::cout << "Portal spawned at position: " << portalPos.x << ", " << portalPos.y << std::endl;
+}
+
 void BasicLevelScene::update(const float& dt) {
+    // Check if player is dead
+    if (m_player && !m_player->is_alive())
+    {
+        m_player_dead = true;
+    }
+
+    // If player is dead, check for menu return key and stop updating game
+    if (m_player_dead)
+    {
+        // Static variable to prevent key hold from menu
+        static bool death_key_was_pressed = false;
+        bool death_key_is_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Num0);
+
+        // Only trigger on new key press (not hold from previous screen)
+        if (death_key_is_pressed && !death_key_was_pressed)
+        {
+            // Return to menu - menu will create a fresh game when 0 is pressed again
+            GameSystem::setActiveScene(Scenes::menuScene);
+        }
+
+        death_key_was_pressed = death_key_is_pressed;
+        return; // Don't update game when dead
+    }
+
     Scene::update(dt);
     m_entities.update(dt);
 
-    // have the camera slightly follow the player's mouse position 
+    // Check bullet collisions
+    std::vector<std::shared_ptr<Entity>> all_targets;
+    all_targets.push_back(m_player);
+    for (const auto& enemy : m_enemies)
+    {
+        if (enemy && enemy->is_alive())
+        {
+            all_targets.push_back(enemy);
+        }
+    }
+
+    // Check each bullet for collisions
+    for (auto& entity : m_entities.list)
+    {
+        if (!entity || !entity->is_alive()) continue;
+
+        auto bullet_components = entity->get_compatible_components<BulletComponent>();
+        if (!bullet_components.empty() && bullet_components[0])
+        {
+            // Set callback to track where enemies are killed
+            bullet_components[0]->set_on_kill_callback([this](sf::Vector2f kill_position) {
+                // Store the position where an enemy was killed
+                m_last_enemy_position = kill_position;
+                std::cout << "Enemy killed at: " << kill_position.x << ", " << kill_position.y << std::endl;
+            });
+
+            bullet_components[0]->check_collision(all_targets);
+        }
+    }
+
+    // Check if all enemies are dead and spawn portal if needed
+    if (!m_portal_spawned && count_alive_enemies() == 0)
+    {
+        std::cout << "All enemies defeated! Spawning portal..." << std::endl;
+        spawn_portal();
+    }
+
+    // have the camera slightly follow the player's mouse position
     sf::Vector2i mouse_pos = sf::Mouse::getPosition(Renderer::getWindow());
     sf::Vector2f mouse_world_pos(
         static_cast<float>(mouse_pos.x - (mouse_pos.x / 2)),
@@ -143,7 +327,35 @@ void BasicLevelScene::update(const float& dt) {
         m_player->get_position().y + (mouse_world_pos.y / 12.5f) // y-axis will have less impact on the camera
     });
 
-    if(LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END){
+    // Check if player reached portal (or END tile as fallback)
+    if (m_portal_spawned && m_portal)
+    {
+        // Check distance to portal
+        sf::Vector2f toPortal = m_portal->get_position() - m_player->get_position();
+        float distance = std::sqrt(toPortal.x * toPortal.x + toPortal.y * toPortal.y);
+
+        // Debug: Print distance when player is getting close
+        if (distance < params::tile_size * 2.0f)
+        {
+            std::cout << "Distance to portal: " << distance << " (need < " << params::tile_size << ")" << std::endl;
+        }
+
+        if (distance < params::tile_size * 1.5f)  // Made activation area bigger
+        {
+            std::cout << "Player reached portal! Loading next level..." << std::endl;
+            int enemyCount = this->enemyCount;
+            if (this->enemyCount + 1 <= 50)
+            {
+                enemyCount = this->enemyCount + 1;
+            }
+            unload();
+            m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), enemyCount);
+        }
+    }
+    else if (LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END)
+    {
+        // Fallback: if player touches END tile before portal spawns (shouldn't happen normally)
+        std::cout << "Player reached END tile, loading next level..." << std::endl;
         int enemyCount = this->enemyCount;
         if (this->enemyCount + 1 <= 50)
         {
@@ -155,9 +367,55 @@ void BasicLevelScene::update(const float& dt) {
 }
 
 void BasicLevelScene::render() {
+    // Render death screen if player is dead
+    if (m_player_dead)
+    {
+        sf::View currentView = Renderer::getWindow().getView();
+        sf::Vector2f viewCenter = currentView.getCenter();
+        sf::Vector2f viewSize = currentView.getSize();
+
+        sf::RectangleShape overlay(viewSize);
+        overlay.setPosition(viewCenter - viewSize / 2.0f);
+        overlay.setFillColor(sf::Color::Black); // Completely black, no transparency!
+        Renderer::getWindow().draw(overlay);
+
+        if (m_death_font.getInfo().family != "")
+        {
+            m_death_text.setPosition(viewCenter);
+            Renderer::getWindow().draw(m_death_text);
+        }
+        return; // Don't render game when dead
+    }
+
+    // Normal game rendering
     LevelSystem::render(Renderer::getWindow());
     Scene::render();
     m_entities.render();
+
+    // Render reload UI if player is reloading
+    if (m_player)
+    {
+        auto shooting_components = m_player->get_compatible_components<PlayerShootingComponent>();
+        if (!shooting_components.empty() && shooting_components[0])
+        {
+            if (shooting_components[0]->is_reloading())
+            {
+                // Get current view for positioning
+                sf::View currentView = Renderer::getWindow().getView();
+                sf::Vector2f viewCenter = currentView.getCenter();
+                sf::Vector2f viewSize = currentView.getSize();
+
+                // Position reload text at top center of screen
+                m_reload_text.setPosition(viewCenter.x, viewCenter.y - viewSize.y / 2.0f + 50.0f);
+
+                // Center horizontally
+                sf::FloatRect bounds = m_reload_text.getLocalBounds();
+                m_reload_text.setOrigin(bounds.width / 2.0f, 0.0f);
+
+                Renderer::getWindow().draw(m_reload_text);
+            }
+        }
+    }
 }
 
 void BasicLevelScene::load() {
@@ -168,6 +426,9 @@ void BasicLevelScene::unload() {
     Scene::unload();
     m_player.reset();
     m_walls.clear();
+    m_enemies.clear();
+    m_portal.reset();
+    m_portal_spawned = false;
 }
 
 std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyMax) {
