@@ -7,12 +7,12 @@ w                               e
 w                         wwww  e
 w                      wwwwwwwwww
 w             wwwwww       wwwwww
-ww      www                     w
-www                             w
-w   ww    www                   w
-wwww               www          w
-w     ww                 www    w
-w                               w
+ww  ww  www                     w
+www                  w          w
+w   ww    www       ww          w
+wwww   w           www          w
+w     wwwwww             www    w
+w            wwww               w
 w                 wwww          w
-w              s                w
+w              s       www      w
 wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
