@@ -8,9 +8,9 @@ w        w     wwwwwwwwwwwwwwwwww
 w        w     wwwwwwwwwwwwwwwwww
 w        w        wwwwwwwwwwwwwww
 ww       w               wwwwwwww
-ww      www                     e
-www     www                     e
-www     www                     e
+ww      www                    ew
+www     www                    ew
+www     www                    ew
 wwww    www                  wwww
 wwww   wwwww              wwwwwww
 wwww   wwwww         wwwwwwwwwwww
