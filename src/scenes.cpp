@@ -187,15 +187,15 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
         auto enemyShooter = m_enemies.back()->add_component<EnemyShootingComponent>(
             this,
             m_player.get(),
-            8,      // clip_size - 8 shots before reload (was 4)
-            4.0f,   // reload_time - 2.5 seconds to reload (was 4)
-            1.0f,   // fire_rate - 1.0 shots/secons
+            10,     // clip_size - 10 shots before reload
+            2.0f,   // reload_time - 2 seconds to reload
+            2.0f,   // fire_rate - 2.0 shots/second
             250.0f, // bullet_speed - medium speed bullets
-            4.0f    // bullet_damage (player has 100 HP = 25 hits to kill)
+            2.0f    // bullet_damage - 2 damage per hit (50 hits to kill player)
         );
-        enemyShooter->set_shooting_range(350.0f);  // Increased range (was 250)
-        enemyShooter->set_shoot_chance(0.30f);  // 30% chance per frame
-        enemyShooter->set_random_delay_range(1.0f, 3.0f);
+        enemyShooter->set_shooting_range(400.0f);  // 400 pixel range
+        enemyShooter->set_shoot_chance(1.0f);  // 100% chance
+        enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays
     }
 }
 
