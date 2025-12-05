@@ -40,6 +40,7 @@ void MenuScene::update(const float& dt) {
         // Create a fresh scene (important when returning from death)
         Scenes::basicLevelScene = std::make_shared<BasicLevelScene>();
         Scenes::basicLevelScene->set_enemy_count(9);
+
         GameSystem::setActiveScene(Scenes::basicLevelScene);
         camera_reset_this_session = false; // Reset flag so camera resets next time we come back to menu
     }
@@ -214,57 +215,15 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
         m_walls.back()->add_component<PlatformComponent>(walls);
     }
 
-    // Create enemies
+    add_enemies(this->enemyCount);
+
+    // Retrieve empty tiles
     std::vector<sf::Vector2i> emptyTiles = LevelSystem::find_tiles(LevelSystem::Tile::EMPTY);
-
-    std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, this->enemyCount);
-
-    for (const sf::Vector2i enemy_pos : enemyPositions)
+    // Picks input amount of positions to create an enemy at.
+    std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, enemyCount);
+    for (size_t i = 0; i < m_enemies.size(); i++)
     {
-        m_enemies.push_back(make_entity());
-        m_enemies.back()->set_position(sf::Vector2f(enemy_pos.x * 20.0f, enemy_pos.y * 20.0f));
-
-        // Create enemy with sprite
-        std::shared_ptr<SpriteComponent> enemySprite = m_enemies.back()->add_component<SpriteComponent>();
-
-        // Try to load enemy sprite, fallback to colored rectangle if it fails
-        if (enemySprite->load_texture(EngineUtils::GetRelativePath("resources/sprites/enemy_sprite.png")))
-        {
-            enemySprite->set_size(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
-            enemySprite->set_origin_center();
-        }
-        else
-        {
-            // Fallback to shape if texture loading fails
-            std::cout << "Failed to load enemy sprite, using fallback shape" << std::endl;
-            std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
-            shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
-            shape->get_shape().setFillColor(sf::Color::Blue);
-            shape->get_shape().setOrigin(sf::Vector2f(params::enemy_size[0] / 2.f, params::enemy_size[1] / 2.f));
-        }
-
-        std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
-        component->create_box_shape({ params::enemy_size[0]-3, params::enemy_size[1]-3 },
-            params::enemy_weight, params::enemy_friction, params::enemy_restitution);
-        component->set_target(m_player);
-
-        // Add enemy health component
-        m_enemies.back()->add_component<HealthComponent>(30.0f);
-
-        // Add enemy shooting component with AGGRESSIVE parameters
-        // Parameters: (entity, scene, target, clip_size, reload_time, fire_rate, bullet_speed, bullet_damage)
-        auto enemyShooter = m_enemies.back()->add_component<EnemyShootingComponent>(
-            this,
-            m_player.get(),
-            10,     // clip_size - 10 shots before reload
-            2.0f,   // reload_time - 2 seconds to reload
-            1.0f,   // fire_rate - 1.0 shots/second
-            250.0f, // bullet_speed - medium speed bullets
-            2.0f    // bullet_damage - 2 damage per hit (50 hits to kill player)
-        );
-        enemyShooter->set_shooting_range(400.0f);  // 400 pixel range
-        enemyShooter->set_shoot_chance(1.0f);  // 100% chance - ALWAYS shoot when ready!
-        enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays: 0-0.5 seconds!
+        m_enemies.at(i)->set_position(sf::Vector2f(enemyPositions.at(i).x * 40.0f, enemyPositions.at(i).y * 40.0f));
     }
 }
 
@@ -498,13 +457,13 @@ void BasicLevelScene::unload() {
     m_portal_spawned = false;
 }
 
-std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyMax) {
+std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyCount) {
     std::vector<sf::Vector2i> enemyPositions;
     std::random_device random_device;
     std::default_random_engine engine(random_device());
     std::uniform_int_distribution<> distribution(0, tiles.size() - 1);
 
-    for (size_t i = 0; i < enemyMax; i++)
+    for (size_t i = 0; i < enemyCount; i++)
     {
         enemyPositions.push_back(tiles[distribution(engine)]);
     }
@@ -521,6 +480,55 @@ std::string BasicLevelScene::pick_level_randomly() {
     return level;
 }
 
+void BasicLevelScene::add_enemies(int enemyCount) {
+    for (size_t i = 0; i < enemyCount; i++)
+    {
+        m_enemies.push_back(make_entity());
+
+        // Create enemy with sprite
+        std::shared_ptr<SpriteComponent> enemySprite = m_enemies.back()->add_component<SpriteComponent>();
+
+        // Try to load enemy sprite, fallback to colored rectangle if it fails
+        if (enemySprite->load_texture(EngineUtils::GetRelativePath("resources/sprites/enemy_sprite.png")))
+        {
+            enemySprite->set_size(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
+            enemySprite->set_origin_center();
+        }
+        else
+        {
+            // Fallback to shape if texture loading fails
+            std::cout << "Failed to load enemy sprite, using fallback shape" << std::endl;
+            std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
+            shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
+            shape->get_shape().setFillColor(sf::Color::Blue);
+            shape->get_shape().setOrigin(sf::Vector2f(params::enemy_size[0] / 2.f, params::enemy_size[1] / 2.f));
+        }
+
+        std::shared_ptr<EnemyControlComponent> component = m_enemies.back()->add_component<EnemyControlComponent>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
+        component->create_box_shape({ params::enemy_size[0] - 3, params::enemy_size[1] - 3 },
+            params::enemy_weight, params::enemy_friction, params::enemy_restitution);
+        component->set_target(m_player);
+
+        // Add enemy health component
+        m_enemies.back()->add_component<HealthComponent>(30.0f);
+
+        // Add enemy shooting component with balanced parameters
+        // Parameters: (entity, scene, target, clip_size, reload_time, fire_rate, bullet_speed, bullet_damage)
+        auto enemyShooter = m_enemies.back()->add_component<EnemyShootingComponent>(
+            this,
+            m_player.get(),
+            10,     // clip_size - 10 shots before reload
+            2.0f,   // reload_time - 2 seconds to reload
+            2.0f,   // fire_rate - 2.0 shots/second (shoot every 0.5 seconds!)
+            250.0f, // bullet_speed - medium speed bullets
+            2.0f    // bullet_damage - 2 damage per hit (50 hits to kill player)
+        );
+        enemyShooter->set_shooting_range(400.0f);  // 400 pixel range
+        enemyShooter->set_shoot_chance(1.0f);  // 100% chance - ALWAYS shoot when ready!
+        enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays: 0-0.5 seconds!
+
+    }
+}
 // ==================== BULLET POOL IMPLEMENTATION ====================
 
 void BasicLevelScene::initialise_bullet_pool(int pool_size) {

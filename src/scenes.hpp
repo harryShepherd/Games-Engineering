@@ -70,8 +70,9 @@ class BasicLevelScene : public Scene
         // Track last enemy position for portal spawn
         sf::Vector2f m_last_enemy_position;
 
-        void m_load_level(const std::string &level, int enemyCount);
-        std::vector<sf::Vector2i> place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyMax);
+        void m_load_level(const std::string& level, int enemyCount);
+        std::vector<sf::Vector2i> place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyCount);
+        void add_enemies(int enemyCount);
         std::string pick_level_randomly();
         void spawn_portal();
         int count_alive_enemies() const;
