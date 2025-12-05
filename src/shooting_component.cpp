@@ -257,8 +257,7 @@ void ShootingComponent::spawn_bullet(const sf::Vector2f& direction)
 
 PlayerShootingComponent::PlayerShootingComponent(Entity* p, Scene* scene, int clip_size, float reload_time,
                                                  float fire_rate, float bullet_speed, float bullet_damage)
-    : ShootingComponent(p, scene, clip_size, reload_time, fire_rate, bullet_speed, bullet_damage),
-      m_shoot_button(sf::Mouse::Left)
+    : ShootingComponent(p, scene, clip_size, reload_time, fire_rate, bullet_speed, bullet_damage)
 {
     set_bullet_color(sf::Color::Cyan);
     set_bullet_size(3.0f);
@@ -270,13 +269,13 @@ void PlayerShootingComponent::update(const float& dt)
     ShootingComponent::update(dt);
 
     // Check for manual reload input
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+    if (sf::Keyboard::isKeyPressed(params::getControls().at("Reload")))
     {
         reload();
     }
 
     // Check for shooting input
-    if (sf::Mouse::isButtonPressed(m_shoot_button) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    if (sf::Mouse::isButtonPressed(params::getMouseControls().at("Shoot")))
     {
         sf::Vector2f direction = get_shooting_direction();
         shoot(direction);

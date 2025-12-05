@@ -38,8 +38,6 @@ struct params
     static constexpr float enemy_friction = 0.0f;
     static constexpr float enemy_restitution = 0.0f;
 
-    static const std::map<std::string, sf::Keyboard::Key> controls;
-
     static const std::map<int, std::string>& getLevels() {
         static const std::map<int, std::string> levels{
             {1, "resources/levels/level1.txt" },
@@ -61,7 +59,15 @@ struct params
             {"Up", sf::Keyboard::W },
             {"Down", sf::Keyboard::S },
             {"Left", sf::Keyboard::A },
-            {"Right", sf::Keyboard::D }
+            {"Right", sf::Keyboard::D },
+            {"Reload", sf::Keyboard::R }
+        };
+        return controls;
+    }
+
+    static const std::map<std::string, sf::Mouse::Button>& getMouseControls() {
+        static const std::map<std::string, sf::Mouse::Button> controls{
+            {"Shoot", sf::Mouse::Left },
         };
         return controls;
     }
