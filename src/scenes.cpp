@@ -215,15 +215,15 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
         m_walls.back()->add_component<PlatformComponent>(walls);
     }
 
-    add_enemies(this->enemyCount);
-
     // Retrieve empty tiles
     std::vector<sf::Vector2i> emptyTiles = LevelSystem::find_tiles(LevelSystem::Tile::EMPTY);
     // Picks input amount of positions to create an enemy at.
     std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, enemyCount);
+    add_enemies(this->enemyCount, enemyPositions);
+
+    
     for (size_t i = 0; i < m_enemies.size(); i++)
     {
-        m_enemies.at(i)->set_position(sf::Vector2f(enemyPositions.at(i).x * 40.0f, enemyPositions.at(i).y * 40.0f));
     }
 }
 
@@ -480,10 +480,11 @@ std::string BasicLevelScene::pick_level_randomly() {
     return level;
 }
 
-void BasicLevelScene::add_enemies(int enemyCount) {
+void BasicLevelScene::add_enemies(int enemyCount, std::vector<sf::Vector2i> positions) {
     for (size_t i = 0; i < enemyCount; i++)
     {
         m_enemies.push_back(make_entity());
+        m_enemies.back()->set_position(sf::Vector2f(positions.at(i).x * 40.0f, positions.at(i).y * 40.0f));
 
         // Create enemy with sprite
         std::shared_ptr<SpriteComponent> enemySprite = m_enemies.back()->add_component<SpriteComponent>();
@@ -526,7 +527,6 @@ void BasicLevelScene::add_enemies(int enemyCount) {
         enemyShooter->set_shooting_range(400.0f);  // 400 pixel range
         enemyShooter->set_shoot_chance(1.0f);  // 100% chance - ALWAYS shoot when ready!
         enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays: 0-0.5 seconds!
-
     }
 }
 // ==================== BULLET POOL IMPLEMENTATION ====================

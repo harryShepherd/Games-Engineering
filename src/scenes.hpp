@@ -72,7 +72,7 @@ class BasicLevelScene : public Scene
 
         void m_load_level(const std::string& level, int enemyCount);
         std::vector<sf::Vector2i> place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyCount);
-        void add_enemies(int enemyCount);
+        void add_enemies(int enemyCount, std::vector<sf::Vector2i> position);
         std::string pick_level_randomly();
         void spawn_portal();
         int count_alive_enemies() const;
