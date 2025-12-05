@@ -5,6 +5,7 @@
 #include "game_system.hpp"
 #include "level_system.hpp"
 #include "character_components.hpp"
+#include "scenes.hpp"
 #include <cmath>
 #include <random>
 #include <iostream>
@@ -94,14 +95,27 @@ void BulletComponent::check_collision(const std::vector<std::shared_ptr<Entity>>
             continue;
         }
 
+        // Friendly fire check - Don't let enemies damage other enemies
+        if (m_owner)
+        {
+            auto owner_enemy_shooting = m_owner->get_compatible_components<EnemyShootingComponent>();
+            bool owner_is_enemy = !owner_enemy_shooting.empty();
+
+            auto target_enemy_shooting = entity->get_compatible_components<EnemyShootingComponent>();
+            bool target_is_enemy = !target_enemy_shooting.empty();
+
+            if (owner_is_enemy && target_is_enemy)
+            {
+                continue;
+            }
+        }
+
         sf::Vector2f entity_pos = entity->get_position();
         sf::Vector2f diff = bullet_pos - entity_pos;
         float distance = std::sqrt(diff.x * diff.x + diff.y * diff.y);
 
-        // Check collision (simple radius check)
         if (distance < 20.0f) // Entity hit radius
         {
-            // Try to damage the entity
             auto health_components = entity->get_compatible_components<HealthComponent>();
             if (!health_components.empty() && health_components[0])
             {
@@ -109,10 +123,9 @@ void BulletComponent::check_collision(const std::vector<std::shared_ptr<Entity>>
                 health_components[0]->take_damage(m_damage);
                 float health_after = health_components[0]->get_current_health();
 
-                // If this bullet killed the entity (health went to 0), trigger callback
                 if (health_before > 0.0f && health_after <= 0.0f && m_on_kill_callback)
                 {
-                    m_on_kill_callback(bullet_pos); // Pass bullet position (collision point)
+                    m_on_kill_callback(bullet_pos);
                 }
             }
 
@@ -123,7 +136,8 @@ void BulletComponent::check_collision(const std::vector<std::shared_ptr<Entity>>
     }
 }
 
-// Shooting Component use
+// Shooting component
+
 ShootingComponent::ShootingComponent(Entity* p, Scene* scene, int clip_size, float reload_time,
                                      float fire_rate, float bullet_speed, float bullet_damage)
     : Component(p), m_scene(scene), m_clip_size(clip_size), m_current_ammo(clip_size),
@@ -209,7 +223,7 @@ void ShootingComponent::reload()
 {
     if (m_reloading)
     {
-        return; // Already reloading
+        return;
     }
 
     m_reloading = true;
@@ -234,17 +248,43 @@ void ShootingComponent::spawn_bullet(const sf::Vector2f& direction)
         return;
     }
 
-    // Create bullet entity
-    const std::shared_ptr<Entity>& bullet = m_scene->make_entity();
+    // Try to get bullet from pool (if scene is BasicLevelScene)
+    BasicLevelScene* levelScene = dynamic_cast<BasicLevelScene*>(m_scene);
+    std::shared_ptr<Entity> bullet;
+
+    if (levelScene)
+    {
+        // Get bullet from pool
+        bullet = levelScene->get_bullet_from_pool();
+    }
+    else
+    {
+        bullet = m_scene->make_entity();
+    }
+
+    // Position bullet at shooter's location
     bullet->set_position(m_parent->get_position());
+    bullet->set_alive(true);
 
-    // Add visual component - use m_bullet_color and m_bullet_size
-    auto shape = bullet->add_component<ShapeComponent>();
-    shape->set_shape<sf::CircleShape>(m_bullet_size);
-    shape->get_shape().setFillColor(m_bullet_color);
-    shape->get_shape().setOrigin(m_bullet_size, m_bullet_size);
+    auto shape_components = bullet->get_compatible_components<ShapeComponent>();
+    if (!shape_components.empty() && shape_components[0])
+    {
+        auto& shape = shape_components[0]->get_shape();
+        if (auto* circle = dynamic_cast<sf::CircleShape*>(&shape))
+        {
+            circle->setRadius(m_bullet_size);
+            circle->setOrigin(m_bullet_size, m_bullet_size);
+        }
+        shape.setFillColor(m_bullet_color);
+    }
+    else
+    {
+        auto shape = bullet->add_component<ShapeComponent>();
+        shape->set_shape<sf::CircleShape>(m_bullet_size);
+        shape->get_shape().setFillColor(m_bullet_color);
+        shape->get_shape().setOrigin(m_bullet_size, m_bullet_size);
+    }
 
-    // Add bullet component
     bullet->add_component<BulletComponent>(
         direction,
         m_bullet_speed,
@@ -265,17 +305,14 @@ PlayerShootingComponent::PlayerShootingComponent(Entity* p, Scene* scene, int cl
 
 void PlayerShootingComponent::update(const float& dt)
 {
-    // Update base shooting logic
     ShootingComponent::update(dt);
 
-    // Check for manual reload input
-    if (sf::Keyboard::isKeyPressed(params::getControls().at("Reload")))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
     {
         reload();
     }
 
-    // Check for shooting input
-    if (sf::Mouse::isButtonPressed(params::getMouseControls().at("Shoot")))
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
         sf::Vector2f direction = get_shooting_direction();
         shoot(direction);
@@ -284,16 +321,12 @@ void PlayerShootingComponent::update(const float& dt)
 
 sf::Vector2f PlayerShootingComponent::get_shooting_direction() const
 {
-    // Get mouse position in window coordinates
     sf::Vector2i mouse_pos = sf::Mouse::getPosition(Renderer::getWindow());
 
-    // Convert to world coordinates using the view
     sf::Vector2f mouse_world_pos = Renderer::getWindow().mapPixelToCoords(mouse_pos, Renderer::getView());
 
-    // Calculate direction from player to mouse
     sf::Vector2f direction = mouse_world_pos - m_parent->get_position();
 
-    // Normalise
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     if (length > 0.0f)
     {
@@ -312,13 +345,13 @@ EnemyShootingComponent::EnemyShootingComponent(Entity* p, Scene* scene, Entity* 
       m_shoot_chance(0.3f), m_random_delay_min(0.5f), m_random_delay_max(2.0f),
       m_random_delay_timer(0.0f)
 {
-    set_bullet_color(sf::Color(255, 100, 0));  // Orange
+    set_bullet_color(sf::Color(255, 100, 0));
     set_bullet_size(2.5f);
 
     // Override bullet damage
     m_bullet_damage = bullet_damage;
 
-    //Generate unique random delay per enemy
+    // Generate unique random delay per enemy
     // Use entity pointer as seed to make each enemy different
     std::random_device rd;
     std::mt19937 gen(rd() + reinterpret_cast<uintptr_t>(p));
@@ -399,10 +432,8 @@ sf::Vector2f EnemyShootingComponent::get_predictive_direction() const
         target_pos = target_pos + target_velocity * time_to_target;
     }
 
-    // Calculate direction to predicted position
     sf::Vector2f direction = target_pos - m_parent->get_position();
 
-    // Normalize
     float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     if (length > 0.0f)
     {

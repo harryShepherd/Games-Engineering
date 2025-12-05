@@ -56,13 +56,10 @@ public:
     void update(const float& dt) override;
     void render() override {}
 
-    // Attempt to shoot in a given direction
     bool shoot(const sf::Vector2f& direction);
 
-    // Check if shooting is allowed
     bool can_shoot() const;
 
-    // Force a reload
     void reload();
 
     // Getters
@@ -84,7 +81,7 @@ protected:
     int m_current_ammo;
     float m_reload_time;
     float m_reload_timer;
-    float m_fire_rate;              // Shots per second
+    float m_fire_rate;
     float m_fire_cooldown;
     float m_bullet_speed;
     float m_bullet_damage;

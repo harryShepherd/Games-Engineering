@@ -2,55 +2,78 @@
 
 #include "game_system.hpp"
 #include "physics.hpp"
+#include <queue>
 
 struct Scenes
 {
     static std::shared_ptr<Scene> menuScene;
     static std::shared_ptr<Scene> basicLevelScene;
+    static std::shared_ptr<Scene> deathScene;
 };
 
 class MenuScene : public Scene {
-public:
-    MenuScene() = default;
-    void update(const float& dt) override;
-    void render() override;
-    void load() override;
-    void unload() override;
-private:
-    sf::Text _text;
-    sf::Font _font;
+    public:
+        MenuScene() = default;
+        void update(const float& dt) override;
+        void render() override;
+        void load() override;
+        void unload() override;
+    private:
+        sf::Text _text;
+        sf::Font _font;
+};
+
+class DeathScene : public Scene {
+    public:
+        DeathScene() = default;
+        void update(const float& dt) override;
+        void render() override;
+        void load() override;
+        void unload() override;
+    private:
+        sf::Text _death_text;
+        sf::Font _death_font;
 };
 
 class BasicLevelScene : public Scene
 {
-public:
-    BasicLevelScene() = default;
-    void update(const float& dt) override;
-    void render() override;
-    void load() override;
-    void unload() override;
-private:
-    std::shared_ptr<Entity> m_player;
-    std::vector<std::shared_ptr<Entity>> m_walls;
-    std::vector<std::shared_ptr<Entity>> m_enemies;
-    std::shared_ptr<Entity> m_portal;
-    bool m_portal_spawned;
+    public:
+        BasicLevelScene() = default;
+        void update(const float& dt) override;
+        void render() override;
+        void load() override;
+        void unload() override;
 
-    // Death screen
-    bool m_player_dead;
-    sf::Text m_death_text;
-    sf::Font m_death_font;
+        // Bullet pool methods - PUBLIC so ShootingComponent can access
+        void initialise_bullet_pool(int pool_size = 50);
+        std::shared_ptr<Entity> get_bullet_from_pool();
+        void return_bullet_to_pool(std::shared_ptr<Entity> bullet);
 
-    // Reload UI
-    sf::Text m_reload_text;
-    sf::Font m_reload_font;
+    private:
+        std::shared_ptr<Entity> m_player;
+        std::vector<std::shared_ptr<Entity>> m_walls;
+        std::vector<std::shared_ptr<Entity>> m_enemies;
+        std::shared_ptr<Entity> m_portal;
+        bool m_portal_spawned;
 
-    // Track last enemy position for portal spawn
-    sf::Vector2f m_last_enemy_position;
+        // Bullet pool - pre-created bullets for reuse
+        std::vector<std::shared_ptr<Entity>> m_bullet_pool;
+        std::queue<std::shared_ptr<Entity>> m_available_bullets;
 
-    void m_load_level(const std::string &level, int enemyCount);
-    std::vector<sf::Vector2i> place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyMax);
-    std::string pick_level_randomly();
-    void spawn_portal();
-    int count_alive_enemies() const;
+        // Reload UI
+        sf::Text m_reload_text;
+        sf::Font m_reload_font;
+
+        // Bullet count limiting (prevent too many bullets)
+        int m_max_bullets = 100;
+
+        // Track last enemy position for portal spawn
+        sf::Vector2f m_last_enemy_position;
+
+        void m_load_level(const std::string &level, int enemyCount);
+        std::vector<sf::Vector2i> place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyMax);
+        std::string pick_level_randomly();
+        void spawn_portal();
+        int count_alive_enemies() const;
+        int count_bullets() const;
 };

@@ -12,6 +12,7 @@
 
 std::shared_ptr<Scene> Scenes::menuScene;
 std::shared_ptr<Scene> Scenes::basicLevelScene;
+std::shared_ptr<Scene> Scenes::deathScene;
 
 /// <summary>
 /// Updates the MenuScene
@@ -76,6 +77,75 @@ void MenuScene::load() {
 /// </summary>
 void MenuScene::unload(){}
 
+/// <summary>
+/// Updates the DeathScene
+/// </summary>
+void DeathScene::update(const float& dt) {
+    // Static variable to prevent key hold
+    static bool key_was_pressed = false;
+    bool key_is_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Num0);
+
+    // Only trigger on NEW key press
+    if (key_is_pressed && !key_was_pressed)
+    {
+        // Return to menu
+        GameSystem::setActiveScene(Scenes::menuScene);
+    }
+
+    key_was_pressed = key_is_pressed;
+    Scene::update(dt);
+}
+
+/// <summary>
+/// Renders the DeathScene - full black screen with red text
+/// </summary>
+void DeathScene::render() {
+    // Get current view
+    sf::View currentView = Renderer::getWindow().getView();
+    sf::Vector2f viewCenter = currentView.getCenter();
+    sf::Vector2f viewSize = currentView.getSize();
+
+    sf::RectangleShape overlay(viewSize);
+    overlay.setPosition(viewCenter - viewSize / 2.0f);
+    overlay.setFillColor(sf::Color::Black);
+    Renderer::getWindow().draw(overlay);
+
+    // Draw death text centered
+    _death_text.setPosition(viewCenter);
+    Renderer::getWindow().draw(_death_text);
+
+    Scene::render();
+}
+
+/// <summary>
+/// Loads the death screen font and text
+/// </summary>
+void DeathScene::load() {
+    if (!_death_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
+    {
+        std::cout << "ERROR: Could not load death screen font!" << std::endl;
+    }
+    else
+    {
+        _death_text.setFont(_death_font);
+        _death_text.setCharacterSize(60);
+        _death_text.setFillColor(sf::Color::Red);
+        _death_text.setString("YOU DIED\n\nPress 0 to return to menu");
+
+        // Center the text
+        sf::FloatRect textBounds = _death_text.getLocalBounds();
+        _death_text.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
+        _death_text.setPosition(params::window_width / 2.0f, params::window_height / 2.0f);
+    }
+}
+
+/// <summary>
+/// Unloads the DeathScene
+/// </summary>
+void DeathScene::unload(){}
+
+// Basic Level Scene
+
 void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
 {
     LevelSystem::load_level(level, params::tile_size);
@@ -83,29 +153,8 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
     m_portal_spawned = false;
     m_portal.reset();
 
-    // Initialise death screen
-    m_player_dead = false;
+    initialise_bullet_pool(50);  // Create pool of 50 bullets
 
-    // Use the same font as menu (vcr_mono.ttf which exists)
-    if (!m_death_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
-    {
-        std::cout << "Error: Could not load death screen font" << std::endl;
-        // Don't crash - just won't show text
-    }
-    else
-    {
-        m_death_text.setFont(m_death_font);
-        m_death_text.setCharacterSize(60);
-        m_death_text.setFillColor(sf::Color::Red);
-        m_death_text.setString("YOU DIED\n\nPress 0 to return to menu");
-
-        // Center the text
-        sf::FloatRect textBounds = m_death_text.getLocalBounds();
-        m_death_text.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
-        m_death_text.setPosition(params::window_width / 2.0f, params::window_height / 2.0f);
-    }
-
-    // Initialise reload UI
     if (!m_reload_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
     {
         std::cout << "ERROR: Could not load reload UI font!" << std::endl;
@@ -114,7 +163,7 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
     {
         m_reload_text.setFont(m_reload_font);
         m_reload_text.setCharacterSize(40);
-        m_reload_text.setFillColor(sf::Color::Red);
+        m_reload_text.setFillColor(sf::Color::Yellow);
         m_reload_text.setString("RELOADING...");
     }
 
@@ -197,14 +246,14 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
         // Add enemy health component
         m_enemies.back()->add_component<HealthComponent>(30.0f);
 
-        // Add enemy shooting component with balanced parameters
+        // Add enemy shooting component with AGGRESSIVE parameters
         // Parameters: (entity, scene, target, clip_size, reload_time, fire_rate, bullet_speed, bullet_damage)
         auto enemyShooter = m_enemies.back()->add_component<EnemyShootingComponent>(
             this,
             m_player.get(),
             10,     // clip_size - 10 shots before reload
             2.0f,   // reload_time - 2 seconds to reload
-            2.0f,   // fire_rate - 2.0 shots/second (shoot every 0.5 seconds!)
+            1.0f,   // fire_rate - 1.0 shots/second
             250.0f, // bullet_speed - medium speed bullets
             2.0f    // bullet_damage - 2 damage per hit (50 hits to kill player)
         );
@@ -222,6 +271,23 @@ int BasicLevelScene::count_alive_enemies() const
         if (enemy && enemy->is_alive() && !enemy->to_be_deleted())
         {
             count++;
+        }
+    }
+    return count;
+}
+
+int BasicLevelScene::count_bullets() const
+{
+    int count = 0;
+    for (const auto& entity : m_entities.list)
+    {
+        if (entity && entity->is_alive())
+        {
+            auto bullet_components = entity->get_compatible_components<BulletComponent>();
+            if (!bullet_components.empty())
+            {
+                count++;
+            }
         }
     }
     return count;
@@ -266,32 +332,33 @@ void BasicLevelScene::spawn_portal()
 }
 
 void BasicLevelScene::update(const float& dt) {
-    // Check if player is dead
+    // Check if player is dead - switch to death scene
     if (m_player && !m_player->is_alive())
     {
-        m_player_dead = true;
-    }
-
-    // If player is dead, check for menu return key and stop updating game
-    if (m_player_dead)
-    {
-        // Static variable to prevent key hold from menu
-        static bool death_key_was_pressed = false;
-        bool death_key_is_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Num0);
-
-        // Only trigger on new key press (not hold from previous screen)
-        if (death_key_is_pressed && !death_key_was_pressed)
+        // Switch to the death scene (should already exist from main.cpp)
+        if (Scenes::deathScene)
         {
-            // Return to menu - menu will create a fresh game when 0 is pressed again
-            GameSystem::setActiveScene(Scenes::menuScene);
+            GameSystem::setActiveScene(Scenes::deathScene);
         }
-
-        death_key_was_pressed = death_key_is_pressed;
-        return; // Don't update game when dead
+        return; // Stop updating this scene
     }
 
     Scene::update(dt);
     m_entities.update(dt);
+
+    // Return dead bullets to pool
+    for (auto& entity : m_entities.list)
+    {
+        if (entity && !entity->is_alive() && !entity->to_be_deleted())
+        {
+            auto bullet_components = entity->get_compatible_components<BulletComponent>();
+            if (!bullet_components.empty())
+            {
+                // This is a dead bullet - return to pool
+                return_bullet_to_pool(entity);
+            }
+        }
+    }
 
     // Check bullet collisions
     std::vector<std::shared_ptr<Entity>> all_targets;
@@ -382,26 +449,6 @@ void BasicLevelScene::update(const float& dt) {
 }
 
 void BasicLevelScene::render() {
-    // Render death screen if player is dead
-    if (m_player_dead)
-    {
-        sf::View currentView = Renderer::getWindow().getView();
-        sf::Vector2f viewCenter = currentView.getCenter();
-        sf::Vector2f viewSize = currentView.getSize();
-
-        sf::RectangleShape overlay(viewSize);
-        overlay.setPosition(viewCenter - viewSize / 2.0f);
-        overlay.setFillColor(sf::Color::Black); // Completely black, no transparency!
-        Renderer::getWindow().draw(overlay);
-
-        if (m_death_font.getInfo().family != "")
-        {
-            m_death_text.setPosition(viewCenter);
-            Renderer::getWindow().draw(m_death_text);
-        }
-        return; // Don't render game when dead
-    }
-
     // Normal game rendering
     LevelSystem::render(Renderer::getWindow());
     Scene::render();
@@ -467,4 +514,72 @@ std::string BasicLevelScene::pick_level_randomly() {
 
     std::string level = params::getLevels().at(distribution(engine));
     return level;
+}
+
+// ==================== BULLET POOL IMPLEMENTATION ====================
+
+void BasicLevelScene::initialise_bullet_pool(int pool_size) {
+    // Clear any existing pool
+    m_bullet_pool.clear();
+    while (!m_available_bullets.empty()) {
+        m_available_bullets.pop();
+    }
+
+    std::cout << "Initializing bullet pool with " << pool_size << " bullets..." << std::endl;
+
+    // Create pool of inactive bullets off-screen
+    for (int i = 0; i < pool_size; i++) {
+        auto bullet = make_entity();
+        bullet->set_position(sf::Vector2f(-10000.0f, -10000.0f)); // Way off-screen
+        bullet->set_alive(false); // Mark as inactive
+
+        // Add visual component (will be configured when bullet is used)
+        auto shape = bullet->add_component<ShapeComponent>();
+        shape->set_shape<sf::CircleShape>(3.0f); // Default size
+        shape->get_shape().setFillColor(sf::Color::White); // Default color
+        shape->get_shape().setOrigin(3.0f, 3.0f);
+
+        // Store in pool
+        m_bullet_pool.push_back(bullet);
+        m_available_bullets.push(bullet);
+    }
+
+    std::cout << "Bullet pool initialized!" << std::endl;
+}
+
+std::shared_ptr<Entity> BasicLevelScene::get_bullet_from_pool() {
+    if (m_available_bullets.empty()) {
+        std::cout << "Warning: Bullet pool exhausted! Creating new bullet..." << std::endl;
+        // Pool exhausted - create a new bullet (fallback)
+        auto bullet = make_entity();
+        auto shape = bullet->add_component<ShapeComponent>();
+        shape->set_shape<sf::CircleShape>(3.0f);
+        shape->get_shape().setFillColor(sf::Color::White);
+        shape->get_shape().setOrigin(3.0f, 3.0f);
+        m_bullet_pool.push_back(bullet); // Add to pool for tracking
+        return bullet;
+    }
+
+    // Get bullet from pool
+    auto bullet = m_available_bullets.front();
+    m_available_bullets.pop();
+
+    // Activate bullet
+    bullet->set_alive(true);
+
+    return bullet;
+}
+
+void BasicLevelScene::return_bullet_to_pool(std::shared_ptr<Entity> bullet) {
+    if (!bullet) return;
+
+    // Deactivate bullet
+    bullet->set_alive(false);
+    bullet->set_position(sf::Vector2f(-10000.0f, -10000.0f)); // Move off-screen
+
+    // Remove any bullet components (they'll be re-added when reused)
+    // This is important to reset state
+
+    // Return to available pool
+    m_available_bullets.push(bullet);
 }
