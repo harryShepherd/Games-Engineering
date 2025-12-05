@@ -26,7 +26,7 @@ void EntityManager::update(const float &dt)
 }
 
 /// <summary>
-/// Iterates through every entity and calls their render if it is visible.
+/// Iterates through every entity and calls their render if it is visible and alive.
 /// </summary>
 void EntityManager::render()
 {

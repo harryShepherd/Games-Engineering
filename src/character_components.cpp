@@ -5,6 +5,8 @@ void HealthComponent::kill()
 {
     std::cout << "I am dead." << std::endl;
     m_parent->set_alive(false);
+    m_parent->set_visible(false);
+    m_parent->set_position(sf::Vector2f(0, 0));
 }
 
 float HealthComponent::get_current_health() { return current_health; }
