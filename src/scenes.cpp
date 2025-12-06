@@ -11,6 +11,7 @@
 #include "character_components.hpp"
 
 std::shared_ptr<Scene> Scenes::menuScene;
+std::shared_ptr<Scene> Scenes::tutorialScene;
 std::shared_ptr<Scene> Scenes::basicLevelScene;
 std::shared_ptr<Scene> Scenes::deathScene;
 
@@ -34,7 +35,7 @@ void MenuScene::update(const float& dt) {
     bool key_is_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Num0);
 
     // Only trigger on key press (not hold)
-    if (key_is_pressed && !key_was_pressed)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0) && !key_was_pressed)
     {
         unload();
         // Create a fresh scene (important when returning from death)
@@ -42,6 +43,15 @@ void MenuScene::update(const float& dt) {
         Scenes::basicLevelScene->set_enemy_count(9);
 
         GameSystem::setActiveScene(Scenes::basicLevelScene);
+        camera_reset_this_session = false; // Reset flag so camera resets next time we come back to menu
+    }
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) && !key_was_pressed){
+        unload();
+        // Create a fresh scene (important when returning from death)
+        Scenes::tutorialScene = std::make_shared<TutorialScene>();
+        Scenes::tutorialScene->set_enemy_count(9);
+
+        GameSystem::setActiveScene(Scenes::tutorialScene);
         camera_reset_this_session = false; // Reset flag so camera resets next time we come back to menu
     }
 
@@ -66,7 +76,7 @@ void MenuScene::load() {
     _font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf"));
     _text.setFont(_font);
     _text.setCharacterSize(60);
-    _text.setString("Cube Zone\n\n\nPress 0 for Basic Level");
+    _text.setString("Cube Zone\n\n\nPress 0 for Basic Level\nPress 1 for the Tutorial");
 
     // Center the menu text
     sf::FloatRect textBounds = _text.getLocalBounds();
@@ -78,6 +88,70 @@ void MenuScene::load() {
 /// Unloads the MenuScene
 /// </summary>
 void MenuScene::unload(){
+    Scene::unload();
+}
+
+/// <summary>
+/// Updates the TutorialScene
+/// </summary>
+/// <param name="dt">Delta Time - Sets frame rate</param>
+void TutorialScene::update(const float& dt) {
+    // Static flag to reset camera once when Tutorial becomes active
+    static bool camera_reset_this_session = false;
+
+    if (!camera_reset_this_session)
+    {
+        GameSystem::moveCamera(sf::Vector2f(params::window_width / 2.0f, params::window_height / 2.0f));
+        camera_reset_this_session = true;
+    }
+
+    // Static variable to track if key was pressed last frame (prevents holding key)
+    static bool key_was_pressed = false;
+
+    bool key_is_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Enter);
+
+    // Only trigger on key press (not hold)
+    if (key_is_pressed && !key_was_pressed)
+    {
+        unload();
+
+        GameSystem::setActiveScene(Scenes::menuScene);
+        camera_reset_this_session = false; // Reset flag so camera resets next time we come back to Tutorial
+    }
+
+    key_was_pressed = key_is_pressed;
+
+    Scene::update(dt);
+}
+
+/// <summary>
+/// Renders the Tutorial scene.
+/// Includes text.
+/// </summary>
+void TutorialScene::render() {
+    Renderer::queue(&_text);
+    Scene::render();
+}
+
+/// <summary>
+/// Loads the font and text into the Tutorial scene.
+/// </summary>
+void TutorialScene::load() {
+    _font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf"));
+    _text.setFont(_font);
+    _text.setCharacterSize(60);
+    _text.setString("Press 'W' to jump.\nPress 'A' to move left.\nPress 'D' to move right.\nPress the left mouse button to shoot.\nPress 'R' to reload.\n\nPress 'Enter' to return to the Menu from here.");
+
+    // Center the Tutorial text
+    sf::FloatRect textBounds = _text.getLocalBounds();
+    _text.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
+    _text.setPosition(params::window_width / 2.0f, params::window_height / 2.0f);
+}
+
+/// <summary>
+/// Unloads the TutorialScene
+/// </summary>
+void TutorialScene::unload(){
     Scene::unload();
 }
 

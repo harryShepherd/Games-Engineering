@@ -7,6 +7,7 @@
 struct Scenes
 {
     static std::shared_ptr<Scene> menuScene;
+    static std::shared_ptr<Scene> tutorialScene;
     static std::shared_ptr<Scene> basicLevelScene;
     static std::shared_ptr<Scene> deathScene;
 };
@@ -14,6 +15,18 @@ struct Scenes
 class MenuScene : public Scene {
     public:
         MenuScene() = default;
+        void update(const float& dt) override;
+        void render() override;
+        void load() override;
+        void unload() override;
+    private:
+        sf::Text _text;
+        sf::Font _font;
+};
+
+class TutorialScene : public Scene {
+    public:
+        TutorialScene() = default;
         void update(const float& dt) override;
         void render() override;
         void load() override;
