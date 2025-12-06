@@ -49,6 +49,9 @@ class BasicLevelScene : public Scene
         std::shared_ptr<Entity> get_bullet_from_pool();
         void return_bullet_to_pool(std::shared_ptr<Entity> bullet);
 
+        // Enemy death callback (changed to public so BulletComponent can call it)
+        void on_enemy_death(sf::Vector2f death_position);
+
     private:
         std::shared_ptr<Entity> m_player;
         std::vector<std::shared_ptr<Entity>> m_walls;
@@ -59,6 +62,15 @@ class BasicLevelScene : public Scene
         // Bullet pool - pre-created bullets for reuse
         std::vector<std::shared_ptr<Entity>> m_bullet_pool;
         std::queue<std::shared_ptr<Entity>> m_available_bullets;
+
+        // Active bullets tracking for efficient iteration
+        std::vector<std::shared_ptr<Entity>> m_active_bullets;
+
+        // Cached collision targets (rebuilt when enemies die)
+        std::vector<std::shared_ptr<Entity>> m_collision_targets;
+
+        // Cached alive enemy count (updated on death instead of counting every frame)
+        int m_alive_enemy_count = 0;
 
         // Reload UI
         sf::Text m_reload_text;
@@ -77,4 +89,7 @@ class BasicLevelScene : public Scene
         void spawn_portal();
         int count_alive_enemies() const;
         int count_bullets() const;
+
+        // Rebuild collision targets when enemies die
+        void rebuild_collision_targets();
 };

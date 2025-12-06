@@ -158,8 +158,10 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
     this->set_enemy_count(enemyCount);
     m_portal_spawned = false;
     m_portal.reset();
+    m_alive_enemy_count = enemyCount;  // Initialise alive enemy counter
+    m_active_bullets.clear();  // Clear active bullets list
 
-    initialise_bullet_pool(50);  // Create pool of 50 bullets
+    initialise_bullet_pool(100);  // Create pool of 100 bullets
 
     if (!m_reload_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
     {
@@ -169,7 +171,7 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
     {
         m_reload_text.setFont(m_reload_font);
         m_reload_text.setCharacterSize(40);
-        m_reload_text.setFillColor(sf::Color::Yellow);
+        m_reload_text.setFillColor(sf::Color::Red);
         m_reload_text.setString("RELOADING...");
     }
 
@@ -221,40 +223,51 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
     std::vector<sf::Vector2i> enemyPositions = place_enemies_randomly(emptyTiles, enemyCount);
     add_enemies(this->enemyCount, enemyPositions);
 
-    
-    for (size_t i = 0; i < m_enemies.size(); i++)
+    // Build initial collision targets list
+    rebuild_collision_targets();
+}
+
+void BasicLevelScene::rebuild_collision_targets()
+{
+    m_collision_targets.clear();
+    m_collision_targets.push_back(m_player);
+
+    for (const auto& enemy : m_enemies)
     {
+        if (enemy && enemy->is_alive() && !enemy->to_be_deleted())
+        {
+            m_collision_targets.push_back(enemy);
+        }
+    }
+}
+
+void BasicLevelScene::on_enemy_death(sf::Vector2f death_position)
+{
+    m_alive_enemy_count--;
+    m_last_enemy_position = death_position;
+
+    std::cout << "Enemy killed at: " << death_position.x << ", " << death_position.y
+              << " (" << m_alive_enemy_count << " remaining)" << std::endl;
+
+    // Rebuild targets list since an enemy died
+    rebuild_collision_targets();
+
+    // Check if all enemies are dead
+    if (m_alive_enemy_count == 0 && !m_portal_spawned)
+    {
+        std::cout << "All enemies defeated. Spawning portal..." << std::endl;
+        spawn_portal();
     }
 }
 
 int BasicLevelScene::count_alive_enemies() const
 {
-    int count = 0;
-    for (const auto& enemy : m_enemies)
-    {
-        if (enemy && enemy->is_alive() && !enemy->to_be_deleted())
-        {
-            count++;
-        }
-    }
-    return count;
+    return m_alive_enemy_count;  // Now  return cached value
 }
 
 int BasicLevelScene::count_bullets() const
 {
-    int count = 0;
-    for (const auto& entity : m_entities.list)
-    {
-        if (entity && entity->is_alive())
-        {
-            auto bullet_components = entity->get_compatible_components<BulletComponent>();
-            if (!bullet_components.empty())
-            {
-                count++;
-            }
-        }
-    }
-    return count;
+    return m_active_bullets.size();  // Return size of active bullets list
 }
 
 void BasicLevelScene::spawn_portal()
@@ -282,7 +295,6 @@ void BasicLevelScene::spawn_portal()
     m_portal = make_entity();
     m_portal->set_position(portalPos);
 
-    // Add visual component - BRIGHT GREEN CIRCLE (very visible!)
     std::shared_ptr<ShapeComponent> shape = m_portal->add_component<ShapeComponent>();
     shape->set_shape<sf::CircleShape>(params::tile_size * 0.8f); // Bigger circle
     shape->get_shape().setFillColor(sf::Color(0, 255, 0, 220)); // Bright green, almost opaque
@@ -310,68 +322,38 @@ void BasicLevelScene::update(const float& dt) {
     Scene::update(dt);
     m_entities.update(dt);
 
-    // Return dead bullets to pool
-    for (auto& entity : m_entities.list)
-    {
-        if (entity && !entity->is_alive() && !entity->to_be_deleted())
-        {
-            auto bullet_components = entity->get_compatible_components<BulletComponent>();
-            if (!bullet_components.empty())
-            {
-                // This is a dead bullet - return to pool
-                return_bullet_to_pool(entity);
-            }
-        }
-    }
-
-    // Check bullet collisions
-    std::vector<std::shared_ptr<Entity>> all_targets;
-    all_targets.push_back(m_player);
-    for (const auto& enemy : m_enemies)
-    {
-        if (enemy && enemy->is_alive())
-        {
-            all_targets.push_back(enemy);
-        }
-    }
-
-    // Check each bullet for collisions
-    for (auto& entity : m_entities.list)
-    {
-        if (!entity || !entity->is_alive()) continue;
-
-        auto bullet_components = entity->get_compatible_components<BulletComponent>();
-        if (!bullet_components.empty() && bullet_components[0])
-        {
-            // Set callback to track where enemies are killed
-            bullet_components[0]->set_on_kill_callback([this](sf::Vector2f kill_position) {
-                // Store the position where an enemy was killed
-                m_last_enemy_position = kill_position;
-                std::cout << "Enemy killed at: " << kill_position.x << ", " << kill_position.y << std::endl;
-            });
-
-            bullet_components[0]->check_collision(all_targets);
-        }
-    }
-
-    // Check if all enemies are dead and spawn portal if needed
-    if (!m_portal_spawned && count_alive_enemies() == 0)
-    {
-        std::cout << "All enemies defeated! Spawning portal..." << std::endl;
-        spawn_portal();
-    }
-
-    // have the camera slightly follow the player's mouse position
-    sf::Vector2i mouse_pos = sf::Mouse::getPosition(Renderer::getWindow());
-    sf::Vector2f mouse_world_pos(
-        static_cast<float>(mouse_pos.x - (mouse_pos.x / 2)),
-        static_cast<float>(mouse_pos.y - (mouse_pos.y / 2))
+    // Return dead bullets to pool and remove from active list
+    m_active_bullets.erase(
+        std::remove_if(m_active_bullets.begin(), m_active_bullets.end(),
+            [this](std::shared_ptr<Entity>& bullet) {
+                if (!bullet->is_alive()) {
+                    return_bullet_to_pool(bullet);
+                    return true;  // Remove from active list
+                }
+                return false;  // Keep in active list
+            }),
+        m_active_bullets.end()
     );
 
-    GameSystem::moveCamera({
-        m_player->get_position().x + (mouse_world_pos.x / 10.0f),
-        m_player->get_position().y + (mouse_world_pos.y / 12.5f) // y-axis will have less impact on the camera
-    });
+    // Check bullet collisions - only iterate through active bullets
+    for (auto& bullet : m_active_bullets)
+    {
+        if (!bullet || !bullet->is_alive()) continue;
+
+        auto bullet_components = bullet->get_compatible_components<BulletComponent>();
+        if (!bullet_components.empty() && bullet_components[0])
+        {
+            // Set callback to trigger on_enemy_death when a kill happens
+            bullet_components[0]->set_on_kill_callback([this](sf::Vector2f kill_position) {
+                on_enemy_death(kill_position);
+            });
+
+            bullet_components[0]->check_collision(m_collision_targets);
+        }
+    }
+
+    // Camera follows player position
+    GameSystem::moveCamera(m_player->get_position());
 
     // Check if player reached portal (or END tile as fallback)
     if (m_portal_spawned && m_portal)
@@ -455,6 +437,9 @@ void BasicLevelScene::unload() {
     m_enemies.clear();
     m_portal.reset();
     m_portal_spawned = false;
+    m_active_bullets.clear();
+    m_collision_targets.clear();
+    m_alive_enemy_count = 0;
 }
 
 std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf::Vector2i> tiles, int enemyCount) {
@@ -529,8 +514,8 @@ void BasicLevelScene::add_enemies(int enemyCount, std::vector<sf::Vector2i> posi
         enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays: 0-0.5 seconds!
     }
 }
-// ==================== BULLET POOL IMPLEMENTATION ====================
 
+// Bullet pool implementation
 void BasicLevelScene::initialise_bullet_pool(int pool_size) {
     // Clear any existing pool
     m_bullet_pool.clear();
@@ -538,7 +523,7 @@ void BasicLevelScene::initialise_bullet_pool(int pool_size) {
         m_available_bullets.pop();
     }
 
-    std::cout << "Initializing bullet pool with " << pool_size << " bullets..." << std::endl;
+    std::cout << "Initialising bullet pool with " << pool_size << " bullets..." << std::endl;
 
     // Create pool of inactive bullets off-screen
     for (int i = 0; i < pool_size; i++) {
@@ -570,6 +555,9 @@ std::shared_ptr<Entity> BasicLevelScene::get_bullet_from_pool() {
         shape->get_shape().setFillColor(sf::Color::White);
         shape->get_shape().setOrigin(3.0f, 3.0f);
         m_bullet_pool.push_back(bullet); // Add to pool for tracking
+
+        // Add to active bullets list
+        m_active_bullets.push_back(bullet);
         return bullet;
     }
 
@@ -579,6 +567,9 @@ std::shared_ptr<Entity> BasicLevelScene::get_bullet_from_pool() {
 
     // Activate bullet
     bullet->set_alive(true);
+
+    // Add to active bullets list
+    m_active_bullets.push_back(bullet);
 
     return bullet;
 }

@@ -32,7 +32,7 @@ void BulletComponent::update(const float& dt)
     m_lifetime_remaining -= safe_dt;
     if (m_lifetime_remaining <= 0.0f)
     {
-        m_parent->set_to_delete();
+        m_parent->set_alive(false);  // Mark as dead (will be returned to pool)
         return;
     }
 
@@ -40,16 +40,7 @@ void BulletComponent::update(const float& dt)
     sf::Vector2f old_pos = m_parent->get_position();
     sf::Vector2f new_pos = old_pos + m_velocity * safe_dt;
 
-    // Check bounds
-    if (new_pos.x < 0.0f || new_pos.x > params::window_width ||
-        new_pos.y < 0.0f || new_pos.y > params::window_height)
-    {
-        m_parent->set_to_delete();
-        return;
-    }
-
     // Check for walls before moving
-    // Ray-cast from old position to new position to detect walls
     sf::Vector2f direction = new_pos - old_pos;
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -130,7 +121,7 @@ void BulletComponent::check_collision(const std::vector<std::shared_ptr<Entity>>
             }
 
             // Destroy the bullet
-            m_parent->set_to_delete();
+            m_parent->set_alive(false);  // Mark as dead (will be returned to pool)
             return;
         }
     }
@@ -285,6 +276,10 @@ void ShootingComponent::spawn_bullet(const sf::Vector2f& direction)
         shape->get_shape().setOrigin(m_bullet_size, m_bullet_size);
     }
 
+    // Remove old BulletComponents before adding new one
+    bullet->remove_components_by_type<BulletComponent>();
+
+    // Add fresh bullet component
     bullet->add_component<BulletComponent>(
         direction,
         m_bullet_speed,
