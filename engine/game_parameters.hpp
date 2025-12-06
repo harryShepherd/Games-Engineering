@@ -23,7 +23,7 @@ struct params
 
     static constexpr float player_size[2] = {20.f,20.f};
     static constexpr float player_weight = 5.f;
-    static constexpr float player_jump = 10.f;
+    static constexpr float player_jump = 20.f;
     static constexpr float player_impulse = 350.f;
     static constexpr float player_max_vel[2] = {500.f,400.f};
     static constexpr float player_friction = 0.0f;
@@ -32,7 +32,7 @@ struct params
     static constexpr float enemy_count = 10;
     static constexpr float enemy_size[2] = { 20.f,20.f };
     static constexpr float enemy_weight = 5.f;
-    static constexpr float enemy_jump = 10.f;
+    static constexpr float enemy_jump = 20.f;
     static constexpr float enemy_impulse = 350.f;
     static constexpr float enemy_max_vel[2] = { 200.f,200.f };
     static constexpr float enemy_friction = 0.0f;
