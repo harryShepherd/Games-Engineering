@@ -507,7 +507,7 @@ void BasicLevelScene::add_enemies(int enemyCount, std::vector<sf::Vector2i> posi
         );
         enemyShooter->set_shooting_range(400.0f);  // 400 pixel range
         enemyShooter->set_shoot_chance(1.0f);  // 100% chance - ALWAYS shoot when ready!
-        enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays: 0-0.5 seconds!
+        enemyShooter->set_random_delay_range(0.0f, 1.0f);  // Very short delays: 0-1 seconds!
     }
 }
 
