@@ -542,7 +542,7 @@ void BasicLevelScene::initialise_bullet_pool(int pool_size) {
         m_available_bullets.push(bullet);
     }
 
-    std::cout << "Bullet pool initialized!" << std::endl;
+    std::cout << "Bullet pool initialised!" << std::endl;
 }
 
 std::shared_ptr<Entity> BasicLevelScene::get_bullet_from_pool() {
@@ -567,6 +567,7 @@ std::shared_ptr<Entity> BasicLevelScene::get_bullet_from_pool() {
 
     // Activate bullet
     bullet->set_alive(true);
+    bullet->set_visible(true);
 
     // Add to active bullets list
     m_active_bullets.push_back(bullet);
@@ -579,10 +580,11 @@ void BasicLevelScene::return_bullet_to_pool(std::shared_ptr<Entity> bullet) {
 
     // Deactivate bullet
     bullet->set_alive(false);
-    bullet->set_position(sf::Vector2f(-10000.0f, -10000.0f)); // Move off-screen
+    bullet->set_position(sf::Vector2f(-10000.0f, -10000.0f));
 
     // Remove any bullet components (they'll be re-added when reused)
     // This is important to reset state
+    bullet->remove_components_by_type<BulletComponent>();
 
     // Return to available pool
     m_available_bullets.push(bullet);
