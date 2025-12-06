@@ -59,7 +59,7 @@ void BulletComponent::update(const float& dt)
             if (LevelSystem::get_tile_at(check_pos) == LevelSystem::WALL)
             {
                 // Hit a wall - destroy bullet
-                m_parent->set_to_delete();
+                m_parent->set_alive(false);
                 return;
             }
         }
