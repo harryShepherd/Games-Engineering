@@ -2,12 +2,13 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <vector>
 
-class Component; //forward declare
+class Component;
 
 class Entity {
 public:
-    Entity() {}
+    Entity() = default;
     virtual ~Entity();
 
     virtual void update(const float &dt);
@@ -55,6 +56,37 @@ public:
         }
 
         return out;
+    }
+
+    //Remove a specific component from this entity
+    template<typename T>
+    void remove_component(std::shared_ptr<T> component)
+    {
+        static_assert(std::is_base_of<Component, T>::value, "T is not a component");
+
+        // Find and remove the component
+        m_components.erase(
+            std::remove_if(m_components.begin(), m_components.end(),
+                [&component](std::shared_ptr<Component>& comp) {
+                    return comp == component;
+                }),
+            m_components.end()
+        );
+    }
+
+    // Remove all components of a specific type
+    template<typename T>
+    void remove_components_by_type()
+    {
+        static_assert(std::is_base_of<Component, T>::value, "T is not a component");
+
+        m_components.erase(
+            std::remove_if(m_components.begin(), m_components.end(),
+                [](std::shared_ptr<Component>& comp) {
+                    return dynamic_cast<T*>(comp.get()) != nullptr;
+                }),
+            m_components.end()
+        );
     }
 
     const sf::Vector2f &get_position() const;

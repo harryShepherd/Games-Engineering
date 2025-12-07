@@ -127,69 +127,71 @@ SteeringOutput output;
 
 void EnemyControlComponent::update(const float& dt)
 {
-    // Need to make the enemy consider whether or not its movement is valid
-    // This should be based on whether or not the next tile is empty.
-    const sf::Vector2f pos = m_parent->get_position();
-    b2Vec2 b2_pos = Physics::sv2_to_bv2(Physics::invert_height(pos, params::window_height));
+    if (this->m_parent->is_alive())
+    {
+        // Need to make the enemy consider whether or not its movement is valid
+        // This should be based on whether or not the next tile is empty.
+        const sf::Vector2f pos = m_parent->get_position();
+        b2Vec2 b2_pos = Physics::sv2_to_bv2(Physics::invert_height(pos, params::window_height));
 
-    auto distance = [](const sf::Vector2f& a, const sf::Vector2f& b) -> float {
-        return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-        };
-    //If target is further than 200 pixels away then seek.
-    if (distance(m_parent->get_position(), target->get_position()) > 150.0f) {
-        output = SteeringBehaviours::seek(target->get_position(), m_parent->get_position());
-        m_seeking = true;
-    }
-    //If target is closer than 100 pixels away then flee.
-    else if (distance(m_parent->get_position(), target->get_position()) < 100.0f) {
-        output = SteeringBehaviours::flee(target->get_position(), m_parent->get_position());
-        m_seeking = false;
-    }
-
-    m_direction.x = output.direction.x;
-
-    // Update sprite facing based on movement direction
-    if (m_direction.x < -0.1f) {
-        // Moving left
-        m_parent->set_facing_right(false);
-    }
-    else if (m_direction.x > 0.1f) {
-        // Moving right
-        m_parent->set_facing_right(true);
-    }
-    // If direction is near zero, keep current facing
-
-    set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
-
-    if (m_seeking && (output.direction.y < -0.1) || !m_seeking) {
-        m_grounded = is_grounded();
-        if (m_grounded)
-        {
-            m_grounded = false;
-            impulse({ 0.0f, -params::enemy_jump });
+        auto distance = [](const sf::Vector2f& a, const sf::Vector2f& b) -> float {
+            return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+            };
+        //If target is further than 200 pixels away then seek.
+        if (distance(m_parent->get_position(), target->get_position()) > 150.0f) {
+            output = SteeringBehaviours::seek(target->get_position(), m_parent->get_position());
+            m_seeking = true;
         }
+        //If target is closer than 100 pixels away then flee.
+        else if (distance(m_parent->get_position(), target->get_position()) < 100.0f) {
+            output = SteeringBehaviours::flee(target->get_position(), m_parent->get_position());
+            m_seeking = false;
+        }
+
+        m_direction.x = output.direction.x;
+
+        // Update sprite facing based on movement direction
+        if (m_direction.x < -0.1f) {
+            // Moving left
+            m_parent->set_facing_right(false);
+        }
+        else if (m_direction.x > 0.1f) {
+            // Moving right
+            m_parent->set_facing_right(true);
+        }
+        // If direction is near zero, keep current facing
+
+        set_velocity({ m_ground_speed * m_direction.x, get_velocity().y });
+
+        if (m_seeking && (output.direction.y < -0.1) || !m_seeking) {
+            m_grounded = is_grounded();
+            if (m_grounded)
+            {
+                m_grounded = false;
+                impulse({ 0.0f, -params::enemy_jump });
+            }
+        }
+
+        dampen({ 1.0f, 1.0f });
+
+        // Disable friction while in the air
+        if (!m_grounded)
+        {
+            m_grounded = is_grounded();
+            //set_friction(0.0f);
+        }
+        else
+        {
+            set_friction(m_friction);
+        }
+
+        // Clamp velocity
+        sf::Vector2f v = get_velocity();
+        v.x = copysign(std::min(abs(v.x), m_max_velocity.x), v.x);
+        v.y = copysign(std::min(abs(v.y), m_max_velocity.y), v.y);
+        set_velocity(v);
+        PhysicsComponent::update(dt);
     }
-
-    dampen({ 1.0f, 1.0f });
-
-    // Disable friction while in the air
-    if (!m_grounded)
-    {
-        m_grounded = is_grounded();
-        //set_friction(0.0f);
-    }
-    else
-    {
-        set_friction(m_friction);
-    }
-
-    // Clamp velocity
-    sf::Vector2f v = get_velocity();
-    v.x = copysign(std::min(abs(v.x), m_max_velocity.x), v.x);
-    v.y = copysign(std::min(abs(v.y), m_max_velocity.y), v.y);
-    set_velocity(v);
-
-    PhysicsComponent::update(dt);
 }
 
 void EnemyControlComponent::set_target(std::shared_ptr<Entity> targetEntity) {
