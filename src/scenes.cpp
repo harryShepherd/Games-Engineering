@@ -280,15 +280,10 @@ void BasicLevelScene::spawn_portal()
     // Use last enemy position if available, otherwise fallback to START tile
     sf::Vector2f portalPos = m_last_enemy_position;
 
-    // Fallback to START tile if no enemy position tracked
+    // Fallback to player position tile if no enemy position tracked (in the case of no kiled enemies)
     if (portalPos.x == 0.0f && portalPos.y == 0.0f)
     {
-        std::vector<sf::Vector2i> endTiles = LevelSystem::find_tiles(LevelSystem::Tile::START);
-        if (!endTiles.empty())
-        {
-            portalPos = LevelSystem::get_tile_pos(endTiles[0]);
-            portalPos += sf::Vector2f(params::tile_size / 2.0f, params::tile_size / 2.0f);
-        }
+        portalPos = m_player->get_position();
     }
 
     // Create portal entity
@@ -357,7 +352,7 @@ void BasicLevelScene::update(const float& dt) {
     for (auto& enemy : m_enemies)
     {
         if (!enemy || !enemy->is_alive()) continue;
-
+        // enemy->set_position(sf::Vector2f(-2000.0f, 2500.0f));
         if (enemy->get_position().y > 2000.0f)
         {
             enemy->set_alive(false);
@@ -367,11 +362,8 @@ void BasicLevelScene::update(const float& dt) {
 
             if (m_alive_enemy_count == 0 && !m_portal_spawned)
             {
-                std::vector<sf::Vector2i> endTiles = LevelSystem::find_tiles(LevelSystem::Tile::END);
-                    sf::Vector2f portalPos = LevelSystem::get_tile_pos(endTiles[0]);
-                    portalPos += sf::Vector2f(params::tile_size / 2.0f, params::tile_size / 2.0f);
-                    std::cout << "Last enemy fell off screen! Spawning portal at END tile..." << std::endl;
-                    on_enemy_death(portalPos);  // Pass world coordinates
+                m_last_enemy_position = sf::Vector2f(0.0f, 0.0f); // clean the last enemy death location to avoid incorrect portal spawning
+                spawn_portal(); //by default spawns at player location
             }
 
             rebuild_collision_targets();
