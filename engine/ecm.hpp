@@ -2,13 +2,12 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
-#include <vector>
 
-class Component;
+class Component; //forward declare
 
 class Entity {
 public:
-    Entity() = default;
+    Entity() {}
     virtual ~Entity();
 
     virtual void update(const float &dt);
@@ -58,37 +57,6 @@ public:
         return out;
     }
 
-    //Remove a specific component from this entity
-    template<typename T>
-    void remove_component(std::shared_ptr<T> component)
-    {
-        static_assert(std::is_base_of<Component, T>::value, "T is not a component");
-
-        // Find and remove the component
-        m_components.erase(
-            std::remove_if(m_components.begin(), m_components.end(),
-                [&component](std::shared_ptr<Component>& comp) {
-                    return comp == component;
-                }),
-            m_components.end()
-        );
-    }
-
-    // Remove all components of a specific type
-    template<typename T>
-    void remove_components_by_type()
-    {
-        static_assert(std::is_base_of<Component, T>::value, "T is not a component");
-
-        m_components.erase(
-            std::remove_if(m_components.begin(), m_components.end(),
-                [](std::shared_ptr<Component>& comp) {
-                    return dynamic_cast<T*>(comp.get()) != nullptr;
-                }),
-            m_components.end()
-        );
-    }
-
     const sf::Vector2f &get_position() const;
     void set_position(const sf::Vector2f &position);
     bool to_be_deleted() const;
@@ -99,11 +67,6 @@ public:
     void set_to_delete();
     bool is_visible() const;
     void set_visible(bool visible);
-
-    // Facing direction for sprite mirroring (true = right, false = left)
-    bool is_facing_right() const;
-    void set_facing_right(bool facing_right);
-
 protected:
     std::vector<std::shared_ptr<Component>> m_components;
     sf::Vector2f m_position;
@@ -111,7 +74,6 @@ protected:
     bool m_alive = true;            // should be updated
     bool m_visible = true;          // should be rendered
     bool m_for_deletion = false;    // should be deleted
-    bool m_facing_right = true;     // for sprite mirroring
 };
 
 struct EntityManager

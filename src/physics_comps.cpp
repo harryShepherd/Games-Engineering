@@ -1,8 +1,7 @@
-#include "physics_components.hpp"
+#include "physics_comps.hpp"
 #include "level_system.hpp"
 #include "game_parameters.hpp"
 #include <array>
-#include <iostream>
 
 PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> &tile_group,
     float friction, float restitution) :
@@ -16,9 +15,7 @@ PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> 
     m_create_chain_shape(tile_group);
 }
 
-void PlatformComponent::update(const float &dt) 
-{
-}
+void PlatformComponent::update(const float &dt) {}
 
 void PlatformComponent::render() {}
 
@@ -110,7 +107,7 @@ void PlatformComponent::m_create_chain_shape(const std::vector<sf::Vector2i> &ti
 
     b2SurfaceMaterial material = b2DefaultSurfaceMaterial();
     material.friction = m_friction;
-    material.restitution = 0.0f; //m_restitution;
+    material.restitution = m_restitution;
     b2ChainDef chain_def = b2DefaultChainDef();
     chain_def.count = points.size();
     chain_def.points = points.data();
@@ -125,7 +122,6 @@ void PlatformComponent::m_create_chain_shape(const std::vector<sf::Vector2i> &ti
 
 void PhysicsComponent::update(const float &dt)
 {
-    b2Body_ApplyForce(m_body_id, {get_velocity().x, m_mass * params::g}, b2Body_GetPosition(m_body_id), false);
     m_parent->set_position(Physics::invert_height(Physics::bv2_to_sv2(b2Body_GetPosition(m_body_id)), params::window_height));
     m_parent->set_rotation((180 / 3.1415f) * b2Rot_GetAngle(b2Body_GetRotation(m_body_id)));
 }
@@ -218,28 +214,102 @@ void PhysicsComponent::create_box_shape(const sf::Vector2f &size, float mass, fl
     m_mass = mass;
     m_friction = friction;
     m_restitution = restitution;
-    //Create the fixture shape
-    b2ShapeDef shape_def = b2DefaultShapeDef();
-    shape_def.density = m_dynamic ? m_mass : 0.f;
-    shape_def.material.friction = m_friction;
-    shape_def.material.restitution = m_restitution;
-    b2Polygon polygon = b2MakeRoundedBox(Physics::sv2_to_bv2(size).x * 0.4f, Physics::sv2_to_bv2(size).y * 0.4f, Physics::sv2_to_bv2(size).x * 0.25f);
-    m_shape_id = b2CreatePolygonShape(m_body_id,&shape_def,&polygon);
-}
 
-void PhysicsComponent::create_capsule_shape(const sf::Vector2f& size,float mass,float friction, float restitution){
-    m_mass = mass;
-    m_friction = friction;
-    m_restitution = restitution;  
-    //Create the fixture shape
+    // Create the fixture shape
     b2ShapeDef shape_def = b2DefaultShapeDef();
-    shape_def.density = m_dynamic ? m_mass : 0.f;
+    shape_def.density = m_dynamic ? m_mass : 0.0f;
     shape_def.material.friction = m_friction;
     shape_def.material.restitution = m_restitution;
     b2Vec2 b2_size = Physics::sv2_to_bv2(size);
     b2Capsule capsule;
-    capsule.center1 = {0,b2_size.y*0.5f-b2_size.x*0.5f};
-    capsule.center2 = {0,-b2_size.y*0.5f+b2_size.x*0.5f};
-    capsule.radius = b2_size.x*0.5f;
-    m_shape_id = b2CreateCapsuleShape(m_body_id,&shape_def,&capsule);
+    capsule.center1 = {0, b2_size.y * 0.5f - b2_size.x * 0.5f};
+    capsule.center2 = {0, -b2_size.y * 0.5f + b2_size.x * 0.5f};
+    capsule.radius = b2_size.x * 0.5f;
+    m_shape_id = b2CreateCapsuleShape(m_body_id, &shape_def, &capsule);
+}
+
+PlayerPhysicsComponent::PlayerPhysicsComponent(Entity *p, const sf::Vector2f &size) : PhysicsComponent(p, true)
+{
+    m_size = Physics::sv2_to_bv2(size);
+    m_max_velocity = sf::Vector2f(params::player_max_vel[0], params::player_max_vel[1]);
+    m_ground_speed = params::player_impulse;
+    m_grounded = false;
+    b2Body_EnableSleep(m_body_id, false);
+}
+
+bool PlayerPhysicsComponent::is_grounded() const
+{
+    std::array<b2ContactData, 10> contacts;
+    int count = get_contacts(contacts);
+
+    if(count <= 0)
+        return false;
+    
+    const b2Vec2 &pos = b2Body_GetPosition(m_body_id);
+    const float half_y = m_size.y * 0.5f;
+
+    for(int i = 0; i < count; ++i)
+    {
+        if(contacts[i].manifold.normal.y == 1)
+            return true;
+    }
+
+    return false;
+}
+
+void PlayerPhysicsComponent::update(const float &dt)
+{
+    const sf::Vector2f pos = m_parent->get_position();
+    b2Vec2 b2_pos = Physics::sv2_to_bv2(Physics::invert_height(pos, params::window_height));
+
+    // Movement
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        {
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            {
+                impulse({dt * m_ground_speed, 0});
+            }
+            else
+            {
+                impulse({-(dt * m_ground_speed), 0});
+            }
+        }
+        else
+        {
+            dampen({0.9f, 1.0f});
+        }
+
+        // Jump
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        {
+            m_grounded = is_grounded();
+
+            if(m_grounded)
+            {
+                set_velocity(sf::Vector2f(get_velocity().x, 0.0f));
+                teleport(sf::Vector2f(pos.x, pos.y - 2.0f));
+                impulse(sf::Vector2f(0, -params::player_jump));
+            }
+        }
+
+        // Disable friction while we are in the air
+        if(!m_grounded)
+        {
+            m_grounded = is_grounded();
+
+            set_friction(0.0f);
+        }
+        else
+        {
+            set_friction(m_friction);
+        }
+
+        // Clamp velocity
+        sf::Vector2f v = get_velocity();
+        v.x = copysign(std::min(abs(v.x), m_max_velocity.x), v.x);
+        v.y = copysign(std::min(abs(v.y), m_max_velocity.y), v.y);
+        set_velocity(v);
+
+        PhysicsComponent::update(dt);
 }

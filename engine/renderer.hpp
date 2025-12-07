@@ -4,9 +4,8 @@
 
 namespace Renderer
 {
-    void init(sf::RenderWindow &win, sf::View &v);
+    void init(sf::RenderWindow &win);
     sf::RenderWindow& getWindow();
-    sf::View& getView();
     
     void shutdown();
     void update(const float &dt);

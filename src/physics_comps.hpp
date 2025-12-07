@@ -1,5 +1,3 @@
-#pragma once
-
 #include "ecm.hpp"
 #include "physics.hpp"
 
@@ -49,4 +47,20 @@ protected:
     float m_friction;
     float m_restitution;
     float m_mass;
+};
+
+class PlayerPhysicsComponent : public PhysicsComponent
+{
+public:
+    void update(const float &dt) override;
+    explicit PlayerPhysicsComponent(Entity *p, const sf::Vector2f &size);
+    PlayerPhysicsComponent() = delete;
+
+protected:
+    b2Vec2 m_size;
+    sf::Vector2f m_max_velocity;
+    bool m_grounded;
+    float m_ground_speed;
+
+    bool is_grounded() const;
 };
