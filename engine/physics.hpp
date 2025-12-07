@@ -24,7 +24,7 @@ public:
     static constexpr float phys_scale = 30.0f; // 30 pixels = 1 meter
     static constexpr float phys_scale_inv = 1.0f / phys_scale;
     static constexpr float time_step = 1.0f / 120.0f; // 120fps
-    static constexpr float gravity = -9.8f;
+    static constexpr float gravity = -9.8f; // Earth-like gravity intended
     static constexpr int sub_step_count = 4; // box2d parameter
 
 private:

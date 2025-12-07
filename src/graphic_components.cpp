@@ -3,6 +3,10 @@
 #include <iostream>
 #include <cmath>
 
+/// <summary>
+/// Updates the shape component.
+/// </summary>
+/// <param name="dt">Delta Time - Linked to Frame Rate.</param>
 void ShapeComponent::update(const float &dt) {
   _shape->setPosition(m_parent->get_position());
   if (this->m_parent->is_visible())
@@ -24,6 +28,9 @@ void ShapeComponent::update(const float &dt) {
   }
 }
 
+/// <summary>
+/// Renders the shape component.
+/// </summary>
 void ShapeComponent::render() { 
 	if (this->m_parent->is_visible())
 	{
@@ -31,17 +38,37 @@ void ShapeComponent::render() {
 	}
 }
 
+/// <summary>
+/// Gets the shape of the ShapeComponent.
+/// </summary>
+/// <returns>The shape.</returns>
 sf::Shape& ShapeComponent::get_shape() const { return *_shape; }
 
+/// <summary>
+/// Initialises the ShapeComponent.
+/// </summary>
+/// <param name="p">The entity being given a shape.</param>
 ShapeComponent::ShapeComponent(Entity* p) : Component(p), _shape(std::make_shared<sf::CircleShape>()) {}
 
+/// <summary>
+/// Initialises the SpriteComponent.
+/// </summary>
+/// <param name="p">The entity being given a sprite.</param>
 SpriteComponent::SpriteComponent(Entity *p) : Component(p), m_sprite(std::make_shared<sf::Sprite>()) {}
 
+/// <summary>
+/// Gets the Sprite.
+/// </summary>
+/// <returns>The sprite.</returns>
 sf::Sprite& SpriteComponent::get_sprite() const 
 {
 	return *m_sprite;
 }
 
+/// <summary>
+/// Updates the sprite.
+/// </summary>
+/// <param name="dt">Delta Time - Linked to Frame Rate.</param>
 void SpriteComponent::update(const float &dt)
 {
 	m_sprite->setPosition(m_parent->get_position());
@@ -66,6 +93,9 @@ void SpriteComponent::update(const float &dt)
 	}
 }
 
+/// <summary>
+/// Renders the SpriteComponent.
+/// </summary>
 void SpriteComponent::render()
 {
 	if (this->m_parent->is_visible())
@@ -74,6 +104,11 @@ void SpriteComponent::render()
 	}
 }
 
+/// <summary>
+/// Loads the sprite texture.
+/// </summary>
+/// <param name="filepath">File path of the sprite texture.</param>
+/// <returns>Whether or not loading was successful.</returns>
 bool SpriteComponent::load_texture(const std::string& filepath)
 {
 	m_texture = std::make_shared<sf::Texture>();
@@ -89,6 +124,10 @@ bool SpriteComponent::load_texture(const std::string& filepath)
 	return true;
 }
 
+/// <summary>
+/// Sets the size of the sprite.
+/// </summary>
+/// <param name="size">Vector2f for size.</param>
 void SpriteComponent::set_size(const sf::Vector2f& size)
 {
 	if (m_texture)
@@ -101,6 +140,9 @@ void SpriteComponent::set_size(const sf::Vector2f& size)
 	}
 }
 
+/// <summary>
+/// Sets the origin of the Sprite.
+/// </summary>
 void SpriteComponent::set_origin_center()
 {
 	if (m_texture)

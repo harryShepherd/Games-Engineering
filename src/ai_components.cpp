@@ -14,7 +14,6 @@ SteeringOutput SteeringBehaviours::seek(const sf::Vector2f& target, const sf::Ve
 	SteeringOutput steering;
 	steering.direction = target - self;
 	steering.direction = steering.direction/length(steering.direction);
-	steering.rotation = steering_rotation(steering);
 
 	bool valid = SteeringOutput::check_valid_move(self, steering);
 
@@ -34,26 +33,19 @@ SteeringOutput SteeringBehaviours::flee(const sf::Vector2f& target, const sf::Ve
 	SteeringOutput steering;
 	steering.direction = self - target;
 	steering.direction = steering.direction/length(steering.direction);
-	steering.rotation = steering_rotation(steering);
 		
-
 	bool valid = SteeringOutput::check_valid_move(self, steering);
 	return steering;
 }
 
-//Checks if the entity is making a valid move.
+/// <summary>
+/// Intended to check if the movement is valid.
+/// </summary>
+/// <param name="pos">Target position</param>
+/// <param name="steering">The output steering.</param>
+/// <returns>True</returns>
 bool SteeringOutput::check_valid_move(const sf::Vector2f& pos, SteeringOutput steering) {
 	return true;
-}
-
-float steering_rotation(SteeringOutput output)
-{
-	float rotation = 0.0f;
-	if (output.direction.x > 0)
-	{
-		rotation = 180.0f;
-	}
-	return rotation;
 }
 
 /// <summary>
@@ -64,7 +56,13 @@ void SteeringComponent::update(const float& dt) {
 	
 }
 
-SteeringComponent::SteeringComponent(Entity* p, Entity* player, float max_speed):
-	_player(player), _max_speed(max_speed), Component(p){ }
+/// <summary>
+/// Creates a new steering component.
+/// </summary>
+/// <param name="e">The entity being given the component.</param>
+/// <param name="player">The target entity.</param>
+/// <param name="max_speed">The maximum speed for travel.</param>
+SteeringComponent::SteeringComponent(Entity* e, Entity* target, float max_speed):
+	_player(target), _max_speed(max_speed), Component(e){ }
 
 
