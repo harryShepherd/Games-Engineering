@@ -277,13 +277,13 @@ void BasicLevelScene::spawn_portal()
         return; // Portal already spawned
     }
 
-    // Use last enemy position if available, otherwise fallback to END tile
+    // Use last enemy position if available, otherwise fallback to START tile
     sf::Vector2f portalPos = m_last_enemy_position;
 
-    // Fallback to END tile if no enemy position tracked
+    // Fallback to START tile if no enemy position tracked
     if (portalPos.x == 0.0f && portalPos.y == 0.0f)
     {
-        std::vector<sf::Vector2i> endTiles = LevelSystem::find_tiles(LevelSystem::Tile::END);
+        std::vector<sf::Vector2i> endTiles = LevelSystem::find_tiles(LevelSystem::Tile::START);
         if (!endTiles.empty())
         {
             portalPos = LevelSystem::get_tile_pos(endTiles[0]);
@@ -379,18 +379,6 @@ void BasicLevelScene::update(const float& dt) {
             unload();
             m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), enemyCount);
         }
-    }
-    else if (LevelSystem::get_tile_at(m_player->get_position()) == LevelSystem::END)
-    {
-        // Fallback: if player touches END tile before portal spawns (shouldn't happen normally)
-        std::cout << "Player reached END tile (fallback)! Loading next level..." << std::endl;
-        int enemyCount = this->enemyCount;
-        if (this->enemyCount + 1 <= 50)
-        {
-            enemyCount = this->enemyCount + 1;
-        }
-        unload();
-        m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), enemyCount);
     }
 }
 
