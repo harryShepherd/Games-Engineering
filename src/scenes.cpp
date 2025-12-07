@@ -421,21 +421,6 @@ void BasicLevelScene::update(const float& dt) {
         }
     }
 
-    // This section is mostly to account for a scenario where the player doesn't kill any enemies.
-        // Due to enemies falling out of the map through failed jumps.
-    int deadCount=0;
-    for each(std::shared_ptr<Entity> enemy in m_enemies)
-    {
-        if (!enemy->is_alive())
-        {
-            deadCount++;
-        }
-    }
-    if (deadCount == this->enemyCount)
-    {
-        spawn_portal();
-    }
-
     // Enemy falling off screen death
     for (auto& enemy : m_enemies)
     {
