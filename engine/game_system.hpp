@@ -6,20 +6,21 @@
 
 class Scene
 {
-public:
-    Scene() = default;
+    public:
+        Scene() = default;
 
-    virtual ~Scene() = default;
-    virtual void update(const float &dt);
-    virtual void render();
-    virtual void load() = 0;
-    virtual void unload();
+        virtual ~Scene() = default;
+        virtual void update(const float &dt);
+        virtual void render();
+        virtual void load() = 0;
+        virtual void unload();
 
-    const std::shared_ptr<Entity>& make_entity();
-    std::vector<std::shared_ptr<Entity>> &getEntities() { return m_entities.list; }
-
-protected:
-    EntityManager m_entities;
+        const std::shared_ptr<Entity>& make_entity();
+        std::vector<std::shared_ptr<Entity>> &getEntities() { return m_entities.list; }
+        void set_enemy_count(int e) { enemyCount = e; }
+    protected:
+        int enemyCount;
+        EntityManager m_entities;
 };
 
 class GameSystem
@@ -29,6 +30,7 @@ public:
     static void clean();
     static void reset();
     static void setActiveScene(const std::shared_ptr<Scene>& active_sc);
+    static void moveCamera(sf::Vector2f pos);
     static float get_fps();
 
 private:

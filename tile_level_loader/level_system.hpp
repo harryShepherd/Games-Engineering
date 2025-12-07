@@ -20,7 +20,7 @@ public:
         WAYPOINT
     };
 
-    static void load_level(const std::string &file_path, float tile_size=100.0f);
+    static void load_level(const std::string &file_path, float tile_size);
     static void render(sf::RenderWindow &win);
     static sf::Color get_color(Tile t);
     static void set_color(Tile t, sf::Color c);
