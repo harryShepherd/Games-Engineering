@@ -421,6 +421,7 @@ void BasicLevelScene::update(const float& dt) {
         }
     }
 
+
     // Enemy falling off screen death
     for (auto& enemy : m_enemies)
     {
