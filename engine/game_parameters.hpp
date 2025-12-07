@@ -17,13 +17,13 @@ struct params
     static constexpr float inv_phys_scale = 1.0f / phys_scale;
 
     static constexpr int sub_step_count = 4;
-    static constexpr float time_step = 1.0f / 60.0f;    // 60FPS
+    static constexpr float time_step = 1.0f / 120.0f;    // 120FPS
 
     static constexpr float tile_size = 40.0f;
 
     static constexpr float player_size[2] = {20.f,20.f};
     static constexpr float player_weight = 5.f;
-    static constexpr float player_jump = 10.f;
+    static constexpr float player_jump = 20.f;
     static constexpr float player_impulse = 350.f;
     static constexpr float player_max_vel[2] = {500.f,400.f};
     static constexpr float player_friction = 0.0f;
@@ -32,7 +32,7 @@ struct params
     static constexpr float enemy_count = 10;
     static constexpr float enemy_size[2] = { 20.f,20.f };
     static constexpr float enemy_weight = 5.f;
-    static constexpr float enemy_jump = 10.f;
+    static constexpr float enemy_jump = 20.f;
     static constexpr float enemy_impulse = 350.f;
     static constexpr float enemy_max_vel[2] = { 200.f,200.f };
     static constexpr float enemy_friction = 0.0f;

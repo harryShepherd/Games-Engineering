@@ -354,15 +354,10 @@ void BasicLevelScene::spawn_portal()
     // Use last enemy position if available, otherwise fallback to START tile
     sf::Vector2f portalPos = m_last_enemy_position;
 
-    // Fallback to START tile if no enemy position tracked
+    // Fallback to player position tile if no enemy position tracked (in the case of no kiled enemies)
     if (portalPos.x == 0.0f && portalPos.y == 0.0f)
     {
-        std::vector<sf::Vector2i> endTiles = LevelSystem::find_tiles(LevelSystem::Tile::START);
-        if (!endTiles.empty())
-        {
-            portalPos = LevelSystem::get_tile_pos(endTiles[0]);
-            portalPos += sf::Vector2f(params::tile_size / 2.0f, params::tile_size / 2.0f);
-        }
+        portalPos = m_player->get_position();
     }
 
     // Create portal entity
@@ -383,7 +378,7 @@ void BasicLevelScene::spawn_portal()
 
 void BasicLevelScene::update(const float& dt) {
     // Check if player is dead - switch to death scene
-    if (m_player && !m_player->is_alive())
+    if (m_player && (!m_player->is_alive() || m_player->get_position().y > 2000.0f))
     {
         // Switch to the death scene (should already exist from main.cpp)
         if (Scenes::deathScene)
@@ -425,11 +420,34 @@ void BasicLevelScene::update(const float& dt) {
             bullet_components[0]->check_collision(m_collision_targets);
         }
     }
+    
+
+    // Enemy falling off screen death
+    for (auto& enemy : m_enemies)
+    {
+        if (!enemy || !enemy->is_alive()) continue;
+        // enemy->set_position(sf::Vector2f(-2000.0f, 2500.0f));
+        if (enemy->get_position().y > 2000.0f)
+        {
+            enemy->set_alive(false);
+            m_alive_enemy_count--;
+
+            std::cout << "Enemy fell off screen! " << m_alive_enemy_count << " remaining." << std::endl;
+
+            if (m_alive_enemy_count == 0 && !m_portal_spawned)
+            {
+                m_last_enemy_position = sf::Vector2f(0.0f, 0.0f); // clean the last enemy death location to avoid incorrect portal spawning
+                spawn_portal(); //by default spawns at player location
+            }
+
+            rebuild_collision_targets();
+        }
+    }
 
     // Camera follows player position
     GameSystem::moveCamera(m_player->get_position());
 
-    // Check if player reached portal (or END tile as fallback)
+    // Check if player reached portal
     if (m_portal_spawned && m_portal)
     {
         // Check distance to portal
@@ -489,6 +507,7 @@ void BasicLevelScene::render() {
 }
 
 void BasicLevelScene::load() {
+    this->currentLevel = 0;
     m_load_level(EngineUtils::GetRelativePath(pick_level_randomly()), this->enemyCount);
 }
 
@@ -509,10 +528,11 @@ std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf
     std::random_device random_device;
     std::default_random_engine engine(random_device());
     std::uniform_int_distribution<> distribution(0, tiles.size() - 1);
-
+    sf::Vector2i chosenPosition;
     for (size_t i = 0; i < enemyCount; i++)
     {
-        enemyPositions.push_back(tiles[distribution(engine)]);
+        chosenPosition = tiles[distribution(engine)];
+        enemyPositions.push_back(sf::Vector2i(chosenPosition.x * params::tile_size, chosenPosition.y * params::tile_size));
     }
 
     return enemyPositions;
@@ -521,9 +541,15 @@ std::vector<sf::Vector2i> BasicLevelScene::place_enemies_randomly(std::vector<sf
 std::string BasicLevelScene::pick_level_randomly() {
     std::random_device random_device;
     std::default_random_engine engine(random_device());
-    std::uniform_int_distribution<> distribution(1, params::getLevels().size() - 1);
+    std::uniform_int_distribution<> distribution(1, params::getLevels().size());
+    int levelInt = 0;
+    do
+    {
+        levelInt = distribution(engine);
 
-    std::string level = params::getLevels().at(distribution(engine));
+    } while (this->currentLevel == levelInt);
+    this->currentLevel = levelInt;
+    std::string level = params::getLevels().at(this->currentLevel);
     return level;
 }
 
@@ -531,7 +557,7 @@ void BasicLevelScene::add_enemies(int enemyCount, std::vector<sf::Vector2i> posi
     for (size_t i = 0; i < enemyCount; i++)
     {
         m_enemies.push_back(make_entity());
-        m_enemies.back()->set_position(sf::Vector2f(positions.at(i).x * 40.0f, positions.at(i).y * 40.0f));
+        m_enemies.back()->set_position(sf::Vector2f(positions.at(i).x, positions.at(i).y));
 
         // Create enemy with sprite
         std::shared_ptr<SpriteComponent> enemySprite = m_enemies.back()->add_component<SpriteComponent>();
@@ -573,7 +599,7 @@ void BasicLevelScene::add_enemies(int enemyCount, std::vector<sf::Vector2i> posi
         );
         enemyShooter->set_shooting_range(400.0f);  // 400 pixel range
         enemyShooter->set_shoot_chance(1.0f);  // 100% chance - ALWAYS shoot when ready!
-        enemyShooter->set_random_delay_range(0.0f, 0.5f);  // Very short delays: 0-0.5 seconds!
+        enemyShooter->set_random_delay_range(0.0f, 1.0f);  // Very short delays: 0-1 seconds!
     }
 }
 

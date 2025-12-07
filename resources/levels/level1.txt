@@ -1,4 +1,4 @@
-w                               w
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 w                               w
 w                               w
 w                               w
@@ -11,8 +11,8 @@ wwww   www                      w
 wwww   wwww                     w
 wwww   wwwww                    w
 wwww   wwwwww   www             w
-wwww   wwwwwww  www             w
-wwww   wwwwwwwwwwww            ee
-wwww   wwwww    www            ee
-wwww   wwwww    www            ee
-wwwwwwwwwwww    wwwwwwwwwwwwwwwww
+wwww   wwwwwww  wwww        wwwww
+wwww   wwwwwww  wwww       wwwwww
+wwww   wwwww    wwww   ww    wwww
+wwww   wwwww    www   wwww      w
+wwww   wwwww    wwwwwwwwwwwwwwwww

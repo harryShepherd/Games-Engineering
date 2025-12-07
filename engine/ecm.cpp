@@ -1,6 +1,7 @@
 #include "ecm.hpp"
 #include "renderer.hpp"
 #include <iostream>
+#include "../src/character_components.hpp"
 
 /// <summary>
 /// Goes through all entities that are to be updated.
@@ -66,6 +67,14 @@ void Entity::update(const float &dt)
     for(std::shared_ptr<Component> &comp : m_components)
     {
         comp->update(dt);
+    }
+    if (this->m_position.y > 2000)
+    {
+        auto health_components = this->get_compatible_components<HealthComponent>();
+        if (!health_components.empty() && health_components[0])
+        {
+            health_components[0]->take_damage(1000);
+        }
     }
 }
 
