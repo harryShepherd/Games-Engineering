@@ -351,6 +351,7 @@ void BasicLevelScene::update(const float& dt) {
             bullet_components[0]->check_collision(m_collision_targets);
         }
     }
+    
 
     // Enemy falling off screen death
     for (auto& enemy : m_enemies)
@@ -380,7 +381,7 @@ void BasicLevelScene::update(const float& dt) {
     // Camera follows player position
     GameSystem::moveCamera(m_player->get_position());
 
-    // Check if player reached portal (or END tile as fallback)
+    // Check if player reached portal
     if (m_portal_spawned && m_portal)
     {
         // Check distance to portal
