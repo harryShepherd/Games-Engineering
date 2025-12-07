@@ -68,14 +68,6 @@ void Entity::update(const float &dt)
     {
         comp->update(dt);
     }
-    if (this->m_position.y > 2000)
-    {
-        auto health_components = this->get_compatible_components<HealthComponent>();
-        if (!health_components.empty() && health_components[0])
-        {
-            health_components[0]->take_damage(1000);
-        }
-    }
 }
 
 /// <summary>
