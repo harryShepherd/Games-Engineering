@@ -50,6 +50,10 @@ set_target_properties(${PROJECT_NAME}
     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$(Configuration)
 )
 
+#### CPack stuff ####
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+include(CPack)
+
 #### Resources Folder ####
 add_custom_target(copy_resources ALL COMMAND ${CMAKE_COMMAND} 
   -E copy_directory
