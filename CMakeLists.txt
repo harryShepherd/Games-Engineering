@@ -50,10 +50,6 @@ set_target_properties(${PROJECT_NAME}
     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$(Configuration)
 )
 
-#### CPack stuff ####
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
-include(CPack)
-
 #### Resources Folder ####
 add_custom_target(copy_resources ALL COMMAND ${CMAKE_COMMAND} 
   -E copy_directory
@@ -69,3 +65,40 @@ IF (WIN32)
             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     )
 ENDIF()
+
+############################################################
+#               INSTALL RULES FOR CPACK                    #
+############################################################
+
+# Install binary
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+
+# Install resources folder
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION .)
+
+# Install SFML & Box2D DLLs
+if (WIN32)
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/lib/SFML/lib/" DESTINATION bin)
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/box2d/bin/" DESTINATION bin)
+endif()
+
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/Resources" DESTINATION bin)
+
+############################################################
+#                       CPACK SETUP                        #
+############################################################
+
+include(InstallRequiredSystemLibraries)
+
+set(CPACK_PACKAGE_NAME "CubeZone")
+set(CPACK_PACKAGE_VENDOR "YourName")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "CubeZone Game")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CubeZone")
+
+# NSIS Generator
+set(CPACK_GENERATOR "NSIS")
+
+# NSIS Options
+set(CPACK_NSIS_DISPLAY_NAME "CubeZone")
+
+include(CPack)
