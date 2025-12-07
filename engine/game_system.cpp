@@ -10,12 +10,13 @@ float GameSystem::fps;
 // Central game loop.
 void GameSystem::start(unsigned int w, unsigned int h, const std::string &title, const float &time_step, bool physics_enabled)
 {
-    sf::RenderWindow window(sf::VideoMode({w, h}), title);
+    sf::RenderWindow window({w, h}, title);
+    sf::View view = window.getDefaultView();
 
     m_physics_enabled = physics_enabled;
 
     m_init();
-    Renderer::init(window);
+    Renderer::init(window, view);
 
     sf::Event event;
 
@@ -37,6 +38,15 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
                 window.close();
                 clean();
                 return;
+            }
+
+            if(event.type == sf::Event::Resized)
+            {
+                view.setSize({
+                    static_cast<float>(event.size.width),
+                    static_cast<float>(event.size.height)
+                });
+                window.setView(view);
             }
         }
 
@@ -61,6 +71,12 @@ void GameSystem::start(unsigned int w, unsigned int h, const std::string &title,
 }
 
 float GameSystem::get_fps() { return fps; }
+
+void GameSystem::moveCamera(sf::Vector2f pos)
+{
+    Renderer::getView().setCenter(pos);
+    Renderer::getWindow().setView(Renderer::getView());
+}
 
 // Sets the active scene.
 void GameSystem::setActiveScene(const std::shared_ptr<Scene> &active_sc)
@@ -116,6 +132,8 @@ void GameSystem::m_render()
 // Updates the scene.
 void Scene::update(const float &dt)
 {
+    std::cout << "FPS: " << GameSystem::get_fps() << std::endl;
+
     for(std::shared_ptr<Entity> &ent : m_entities.list)
     {
         ent->update(dt);

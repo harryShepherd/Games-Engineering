@@ -1,24 +1,39 @@
 #pragma once
-#include "ecm.hpp"
+#include "physics_components.hpp"
+#include "ai_components.hpp"
 
-class KeyboardMovementComponent : public Component {
-	protected:
-		// The speed at which the entity can travel.
-		float speed;
-		// Checking if movement is valid.
-		bool valid_move(const sf::Vector2f&);
+class PlayerControlComponent : public PhysicsComponent
+{
+    public:
+        void update(const float& dt) override;
+        explicit PlayerControlComponent(Entity* p, const sf::Vector2f& size);
+        PlayerControlComponent() = delete;
 
-	public:
-		// Checks the keyboard and moves the component's parent.
-		void update(const float& dt) override;
-		// Moves the component parent
-		void move(const sf::Vector2f&);
-		// Moves the component parent.
-		void move(float x, float y);
-		// This component doesn't need to be rendered and should be marked as such.
-		void render() override {}
-		// Creates the component for an entity.
-		explicit KeyboardMovementComponent(Entity* p);
+    protected:
+        b2Vec2 m_size;
+        sf::Vector2f m_max_velocity;
+        sf::Vector2f m_direction{ 0.0f, 0.0f };
+        bool m_grounded;
+        float m_ground_speed;
 
-		KeyboardMovementComponent() = delete;
+        bool is_grounded() const;
+};
+class EnemyControlComponent : public PhysicsComponent
+{
+    public:
+        void update(const float& dt) override;
+        explicit EnemyControlComponent(Entity* e, const sf::Vector2f& size);
+        EnemyControlComponent() = delete;
+        void set_target(std::shared_ptr<Entity> targetEntity);
+    protected:
+        b2Vec2 m_size;
+        sf::Vector2f m_max_velocity;
+        sf::Vector2f m_direction{ 0.0f, 0.0f };
+        bool m_grounded;
+        float m_ground_speed;
+        SteeringOutput output;
+        std::shared_ptr<Entity> target;
+        bool m_seeking;
+
+        bool is_grounded() const;
 };

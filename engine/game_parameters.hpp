@@ -1,11 +1,15 @@
 #pragma once
 
+#include "engine_utils.hpp"
+#include <map>
+#include <string>
+
 #define DEBUG
 
 struct params
 {
-    static constexpr int window_width = 700;
-    static constexpr int window_height = 700;
+    static constexpr int window_width = 1000;
+    static constexpr int window_height = 1000;
 
     static constexpr float g = -9.8f;   // gravity
 
@@ -13,21 +17,58 @@ struct params
     static constexpr float inv_phys_scale = 1.0f / phys_scale;
 
     static constexpr int sub_step_count = 4;
-    static constexpr float time_step = 1.0f / 60.0f;    // 60FPS
+    static constexpr float time_step = 1.0f / 120.0f;    // 120FPS
 
     static constexpr float tile_size = 40.0f;
 
-    static constexpr float player_size[2] = {20.f,30.f};
-    static constexpr float player_weight = 10.f;
-    static constexpr float player_jump = 40.f;
-    static constexpr float player_impulse = 100.f;
-    static constexpr float player_max_vel[2] = {200.f,400.f};
-    static constexpr float player_friction = 100.f;
+    static constexpr float player_size[2] = {20.f,20.f};
+    static constexpr float player_weight = 5.f;
+    static constexpr float player_jump = 20.f;
+    static constexpr float player_impulse = 350.f;
+    static constexpr float player_max_vel[2] = {500.f,400.f};
+    static constexpr float player_friction = 0.0f;
     static constexpr float player_restitution = 0.0f;
-    static constexpr sf::Keyboard::Key controls[4] = {
-        sf::Keyboard::W,   // Player Up
-        sf::Keyboard::A,   // Player Left
-        sf::Keyboard::S,   // Player Down
-        sf::Keyboard::D,   // Player Right
-    };
+
+    static constexpr float enemy_count = 10;
+    static constexpr float enemy_size[2] = { 20.f,20.f };
+    static constexpr float enemy_weight = 5.f;
+    static constexpr float enemy_jump = 20.f;
+    static constexpr float enemy_impulse = 350.f;
+    static constexpr float enemy_max_vel[2] = { 200.f,200.f };
+    static constexpr float enemy_friction = 0.0f;
+    static constexpr float enemy_restitution = 0.0f;
+
+    static const std::map<int, std::string>& getLevels() {
+        static const std::map<int, std::string> levels{
+            {1, "resources/levels/level1.txt" },
+            {2, "resources/levels/level2.txt" },
+            {3, "resources/levels/level3.txt" },
+            {4, "resources/levels/level4.txt" },
+            {5, "resources/levels/level5.txt" },
+            {6, "resources/levels/level6.txt" },
+            {7, "resources/levels/level7.txt" },
+            {8, "resources/levels/level8.txt" },
+            {9, "resources/levels/level9.txt" },
+            {10, "resources/levels/level10.txt" }
+        };
+        return levels;
+    }
+
+    static const std::map<std::string, sf::Keyboard::Key>& getControls() {
+        static const std::map<std::string, sf::Keyboard::Key> controls{
+            {"Up", sf::Keyboard::W },
+            {"Left", sf::Keyboard::A },
+            {"Right", sf::Keyboard::D },
+            {"Reload", sf::Keyboard::R },
+            {"BackupShoot", sf::Keyboard::Space }
+        };
+        return controls;
+    }
+
+    static const std::map<std::string, sf::Mouse::Button>& getMouseControls() {
+        static const std::map<std::string, sf::Mouse::Button> controls{
+            {"Shoot", sf::Mouse::Left },
+        };
+        return controls;
+    }
 };
