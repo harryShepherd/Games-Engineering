@@ -225,7 +225,9 @@ std::vector<std::vector<sf::Vector2i>> LevelSystem::get_groups(Tile type)
             {
                 if (tile_list[i] == pos) { break; }
             }
-            tile_list.erase(tile_list.begin() + i);
+            if (i < tile_list.size()) {
+                tile_list.erase(tile_list.begin() + i);
+            }
         }
     }
     return groups;
