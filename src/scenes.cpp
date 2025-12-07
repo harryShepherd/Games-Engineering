@@ -309,7 +309,7 @@ void BasicLevelScene::spawn_portal()
 
 void BasicLevelScene::update(const float& dt) {
     // Check if player is dead - switch to death scene
-    if (m_player && !m_player->is_alive())
+    if (m_player && (!m_player->is_alive() || m_player->get_position().y > 2000.0f))
     {
         // Switch to the death scene (should already exist from main.cpp)
         if (Scenes::deathScene)
@@ -349,6 +349,31 @@ void BasicLevelScene::update(const float& dt) {
             });
 
             bullet_components[0]->check_collision(m_collision_targets);
+        }
+    }
+
+    // Enemy falling off screen death
+    for (auto& enemy : m_enemies)
+    {
+        if (!enemy || !enemy->is_alive()) continue;
+
+        if (enemy->get_position().y > 2000.0f)
+        {
+            enemy->set_alive(false);
+            m_alive_enemy_count--;
+
+            std::cout << "Enemy fell off screen! " << m_alive_enemy_count << " remaining." << std::endl;
+
+            if (m_alive_enemy_count == 0 && !m_portal_spawned)
+            {
+                std::vector<sf::Vector2i> endTiles = LevelSystem::find_tiles(LevelSystem::Tile::END);
+                    sf::Vector2f portalPos = LevelSystem::get_tile_pos(endTiles[0]);
+                    portalPos += sf::Vector2f(params::tile_size / 2.0f, params::tile_size / 2.0f);
+                    std::cout << "Last enemy fell off screen! Spawning portal at END tile..." << std::endl;
+                    on_enemy_death(portalPos);  // Pass world coordinates
+            }
+
+            rebuild_collision_targets();
         }
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ecm.hpp"
-#include "game_parameters.hpp"
+#include "../engine/ecm.hpp"
+#include "../engine/game_parameters.hpp"
 
 class HealthComponent : public Component
 {
