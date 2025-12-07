@@ -351,7 +351,21 @@ void BasicLevelScene::update(const float& dt) {
             bullet_components[0]->check_collision(m_collision_targets);
         }
     }
-    
+
+    // This section is mostly to account for a scenario where the player doesn't kill any enemies.
+        // Due to enemies falling out of the map through failed jumps.
+    int deadCount=0;
+    for each(std::shared_ptr<Entity> enemy in m_enemies)
+    {
+        if (!enemy->is_alive())
+        {
+            deadCount++;
+        }
+    }
+    if (deadCount == this->enemyCount)
+    {
+        spawn_portal();
+    }
 
     // Camera follows player position
     GameSystem::moveCamera(m_player->get_position());
