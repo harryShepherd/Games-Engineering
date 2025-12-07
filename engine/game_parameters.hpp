@@ -57,10 +57,10 @@ struct params
     static const std::map<std::string, sf::Keyboard::Key>& getControls() {
         static const std::map<std::string, sf::Keyboard::Key> controls{
             {"Up", sf::Keyboard::W },
-            {"Down", sf::Keyboard::S },
             {"Left", sf::Keyboard::A },
             {"Right", sf::Keyboard::D },
-            {"Reload", sf::Keyboard::R }
+            {"Reload", sf::Keyboard::R },
+            {"BackupShoot", sf::Keyboard::Space }
         };
         return controls;
     }

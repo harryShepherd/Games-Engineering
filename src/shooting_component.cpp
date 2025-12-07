@@ -307,7 +307,7 @@ void PlayerShootingComponent::update(const float& dt)
         reload();
     }
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    if (sf::Mouse::isButtonPressed(params::getMouseControls().at("Shoot")) || sf::Keyboard::isKeyPressed(params::getControls().at("BackupShoot")))
     {
         sf::Vector2f direction = get_shooting_direction();
         shoot(direction);
