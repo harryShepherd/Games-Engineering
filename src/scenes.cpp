@@ -140,7 +140,7 @@ void TutorialScene::load() {
     _font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf"));
     _text.setFont(_font);
     _text.setCharacterSize(60);
-    _text.setString("Press 'W' to jump.\nPress 'A' to move left.\nPress 'D' to move right.\nPress the left mouse button to shoot.\nPress 'R' to reload.\n\nPress 'Enter' to return to the Menu from here.");
+    _text.setString("Press 'W' to jump.\nPress 'A' to move left.\nPress 'D' to move right.\nPress the left mouse button or space to shoot.\nPress 'R' to reload.\n\nPress 'Enter' to return to the Menu from here.");
 
     // Center the Tutorial text
     sf::FloatRect textBounds = _text.getLocalBounds();
