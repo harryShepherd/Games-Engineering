@@ -292,4 +292,5 @@ bool LevelSystem::in_group(const sf::Vector2i &pos, const std::vector<sf::Vector
         if (p == pos) { return true; }
         return false;
     }
+    return false;
 }
