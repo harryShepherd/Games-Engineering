@@ -4,6 +4,7 @@
 #include <array>
 #include <iostream>
 
+// This component handles the creation and management of our platform using Box2D chains.
 PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> &tile_group,
     float friction, float restitution) :
     Component(p), m_friction(friction), m_restitution(restitution)
@@ -16,12 +17,13 @@ PlatformComponent::PlatformComponent(Entity *p, const std::vector<sf::Vector2i> 
     m_create_chain_shape(tile_group);
 }
 
-void PlatformComponent::update(const float &dt) 
-{
-}
+// Left blank
+void PlatformComponent::update(const float &dt) {}
 
+// Left blank
 void PlatformComponent::render() {}
 
+// Safely destroy our platform bodies.
 PlatformComponent::~PlatformComponent()
 {
     b2DestroyChain(m_chain_id);
@@ -30,6 +32,7 @@ PlatformComponent::~PlatformComponent()
     m_body_id = b2_nullBodyId;
 }
 
+// Create a chain shape from a 2D vector of coordinates.
 void PlatformComponent::m_create_chain_shape(const std::vector<sf::Vector2i> &tile_group)
 {
     std::vector<b2Vec2> points;
@@ -108,28 +111,37 @@ void PlatformComponent::m_create_chain_shape(const std::vector<sf::Vector2i> &ti
     });
     points.push_back(points.front());
 
+    // Create the material of our surface
     b2SurfaceMaterial material = b2DefaultSurfaceMaterial();
     material.friction = m_friction;
-    material.restitution = 0.0f; //m_restitution;
+    material.restitution = 0.0f;
+
+    // Create the chain definition
     b2ChainDef chain_def = b2DefaultChainDef();
     chain_def.count = points.size();
     chain_def.points = points.data();
     chain_def.isLoop = true;
     chain_def.materials = &material;
     chain_def.materialCount = 1;
+
     m_chain_id = b2CreateChain(m_body_id, &chain_def);
+
     std::vector<b2ShapeId> shape_ids(points.size());
     int nbr_seg = b2Chain_GetSegments(m_chain_id, shape_ids.data(), points.size());
-    shape_ids.size();
 }
 
+// Update the physics component
 void PhysicsComponent::update(const float &dt)
 {
+    // Apply gravity
     b2Body_ApplyForce(m_body_id, {get_velocity().x, m_mass * params::g}, b2Body_GetPosition(m_body_id), false);
+
     m_parent->set_position(Physics::invert_height(Physics::bv2_to_sv2(b2Body_GetPosition(m_body_id)), params::window_height));
     m_parent->set_rotation((180 / 3.1415f) * b2Rot_GetAngle(b2Body_GetRotation(m_body_id)));
 }
 
+// This component handles the physics of the entity that it is attatched to
+// using the Box2D library.
 PhysicsComponent::PhysicsComponent(Entity *p, bool dyn) : Component(p), m_dynamic(dyn)
 {
     b2BodyDef body_def = b2DefaultBodyDef();
@@ -139,24 +151,28 @@ PhysicsComponent::PhysicsComponent(Entity *p, bool dyn) : Component(p), m_dynami
     m_body_id = b2CreateBody(Physics::get_world_id(), &body_def);
 }
 
+// Set the bounciness of this body
 void PhysicsComponent::set_restitution(float r)
 {
     m_restitution = r;
     b2Shape_SetRestitution(m_shape_id, r);
 }
 
+// Set the friction of this body
 void PhysicsComponent::set_friction(float f)
 {
     m_friction = f;
     b2Shape_SetFriction(m_shape_id, f);
 }
 
+// Set the mass of this body
 void PhysicsComponent::set_mass(float m)
 {
     m_mass = m;
     b2Shape_SetDensity(m_shape_id, m_mass, true);
 }
 
+// Teleport this body to position v
 void PhysicsComponent::teleport(const sf::Vector2f &v)
 {
     b2Rot rot;
@@ -165,21 +181,25 @@ void PhysicsComponent::teleport(const sf::Vector2f &v)
     b2Body_SetTransform(m_body_id, Physics::sv2_to_bv2(Physics::invert_height(v, params::window_height)), rot);
 }
 
+// Get the velocity of this body
 const sf::Vector2f PhysicsComponent::get_velocity() const
 {
     return Physics::bv2_to_sv2(b2Body_GetLinearVelocity(m_body_id));
 }
 
+// Set the velocity of this body
 void PhysicsComponent::set_velocity(const sf::Vector2f &v)
 {
     b2Body_SetLinearVelocity(m_body_id, Physics::sv2_to_bv2(v));
 }
 
+// Get the Box2D shape id
 const b2ShapeId& PhysicsComponent::get_shape_id() const
 {
     return m_shape_id;
 }
 
+// Safely destroy our body
 PhysicsComponent::~PhysicsComponent()
 {
     b2DestroyShape(m_shape_id, true);
@@ -188,8 +208,10 @@ PhysicsComponent::~PhysicsComponent()
     m_body_id = b2_nullBodyId;
 }
 
+// Left blank
 void PhysicsComponent::render() {}
 
+// Apply an impulse to the center of this body
 void PhysicsComponent::impulse(const sf::Vector2f &i)
 {
     b2Vec2 a;
@@ -199,6 +221,7 @@ void PhysicsComponent::impulse(const sf::Vector2f &i)
     auto vel = b2Body_GetLinearVelocity(m_body_id);
 }
 
+// Dampen the velocity of this body by a multiple of i
 void PhysicsComponent::dampen(const sf::Vector2f &i)
 {
     auto vel = b2Body_GetLinearVelocity(m_body_id);
@@ -207,12 +230,14 @@ void PhysicsComponent::dampen(const sf::Vector2f &i)
     b2Body_SetLinearVelocity(m_body_id, vel);
 }
 
+// Gets the number of contacts from contact data.
 int PhysicsComponent::get_contacts(std::array<b2ContactData, 10> &contacts) const
 {
     int contact_count = b2Body_GetContactData(m_body_id, contacts.data(), 10);
     return contact_count;
 }
 
+// Creates a box shape using Box2D.
 void PhysicsComponent::create_box_shape(const sf::Vector2f &size, float mass, float friction, float restitution)
 {
     m_mass = mass;
@@ -227,6 +252,7 @@ void PhysicsComponent::create_box_shape(const sf::Vector2f &size, float mass, fl
     m_shape_id = b2CreatePolygonShape(m_body_id,&shape_def,&polygon);
 }
 
+// Creates a capsule shape using Box2D.
 void PhysicsComponent::create_capsule_shape(const sf::Vector2f& size,float mass,float friction, float restitution){
     m_mass = mass;
     m_friction = friction;

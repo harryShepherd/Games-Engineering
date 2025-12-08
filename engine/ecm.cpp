@@ -61,6 +61,24 @@ void Entity::set_position(const sf::Vector2f &pos)
 }
 
 /// <summary>
+/// Gets the rotiation of the entity.
+/// </summary>
+/// <returns>The rotation of the entity.</returns>
+float Entity::get_rotation() const
+{
+    return m_rotation;
+}
+
+/// <summary>
+/// Sets the rotation of the entity.
+/// </summary>
+/// <param name="rotation">The input target rotation.</param>
+void Entity::set_rotation(float rotation)
+{
+    m_rotation = rotation;
+}
+
+/// <summary>
 /// Updates all of the components associated with an entity.
 /// </summary>
 /// <param name="dt">Delta Time - Updates certain # of times per second.</param>

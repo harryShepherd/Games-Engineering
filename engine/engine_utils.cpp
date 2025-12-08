@@ -1,11 +1,18 @@
 #include "engine_utils.hpp"
 #include <iostream>
 
+// We are on Mac
 #ifdef __APPLE__
 
 #include <mach-o/dyld.h>
 #include <limits.h>
 
+/// <summary>
+/// Returns the relative path of the input as a string.
+/// Return values differ by operating system as there are differences between Windows and Mac.
+/// </summary>
+/// <param name="path">The string path</param>
+/// <returns>The relative path</returns>
 std::string EngineUtils::GetRelativePath(std::string path)
 {
         char buf[PATH_MAX];
@@ -21,6 +28,7 @@ std::string EngineUtils::GetRelativePath(std::string path)
         return "";
 }
 
+// We are on windows or linux
 #else
 
 /// <summary>
