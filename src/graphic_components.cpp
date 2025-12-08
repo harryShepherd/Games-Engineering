@@ -115,12 +115,10 @@ bool SpriteComponent::load_texture(const std::string& filepath)
 	
 	if (!m_texture->loadFromFile(filepath))
 	{
-		std::cerr << "Failed to load texture: " << filepath << std::endl;
 		return false;
 	}
 	
 	m_sprite->setTexture(*m_texture);
-	std::cout << "Loaded texture: " << filepath << std::endl;
 	return true;
 }
 

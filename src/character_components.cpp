@@ -6,7 +6,6 @@
 /// </summary>
 void HealthComponent::kill()
 {
-    std::cout << "I am dead." << std::endl;
     m_parent->set_to_delete();
 }
 

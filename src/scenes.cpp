@@ -202,7 +202,7 @@ void DeathScene::render() {
 void DeathScene::load() {
     if (!_death_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
     {
-        std::cout << "ERROR: Could not load death screen font!" << std::endl;
+        throw("ERROR: Could not load death screen font!");
     }
     else
     {
@@ -239,7 +239,7 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
 
     if (!m_reload_font.loadFromFile(EngineUtils::GetRelativePath("resources/fonts/vcr_mono.ttf")))
     {
-        std::cout << "ERROR: Could not load reload UI font!" << std::endl;
+        throw("ERROR: Could not load reload UI font!");
     }
     else
     {
@@ -264,7 +264,6 @@ void BasicLevelScene::m_load_level(const std::string &level, int enemyCount)
     else
     {
         // Fallback to shape if texture loading fails
-        std::cout << "Failed to load player sprite, using fallback shape" << std::endl;
         std::shared_ptr<ShapeComponent> shape = m_player->add_component<ShapeComponent>();
         shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::player_size[0],params::player_size[1]));
         shape->get_shape().setFillColor(sf::Color::Yellow);
@@ -320,16 +319,12 @@ void BasicLevelScene::on_enemy_death(sf::Vector2f death_position)
     m_alive_enemy_count--;
     m_last_enemy_position = death_position;
 
-    std::cout << "Enemy killed at: " << death_position.x << ", " << death_position.y
-              << " (" << m_alive_enemy_count << " remaining)" << std::endl;
-
     // Rebuild targets list since an enemy died
     rebuild_collision_targets();
 
     // Check if all enemies are dead
     if (m_alive_enemy_count == 0 && !m_portal_spawned)
     {
-        std::cout << "All enemies defeated. Spawning portal..." << std::endl;
         spawn_portal();
     }
 }
@@ -372,8 +367,6 @@ void BasicLevelScene::spawn_portal()
     shape->get_shape().setOrigin(params::tile_size * 0.8f, params::tile_size * 0.8f);
 
     m_portal_spawned = true;
-
-    std::cout << "Portal spawned at position: " << portalPos.x << ", " << portalPos.y << std::endl;
 }
 
 void BasicLevelScene::update(const float& dt) {
@@ -432,8 +425,6 @@ void BasicLevelScene::update(const float& dt) {
             enemy->set_alive(false);
             m_alive_enemy_count--;
 
-            std::cout << "Enemy fell off screen! " << m_alive_enemy_count << " remaining." << std::endl;
-
             if (m_alive_enemy_count == 0 && !m_portal_spawned)
             {
                 m_last_enemy_position = sf::Vector2f(0.0f, 0.0f); // clean the last enemy death location to avoid incorrect portal spawning
@@ -454,15 +445,8 @@ void BasicLevelScene::update(const float& dt) {
         sf::Vector2f toPortal = m_portal->get_position() - m_player->get_position();
         float distance = std::sqrt(toPortal.x * toPortal.x + toPortal.y * toPortal.y);
 
-        // Debug: Print distance when player is getting close
-        if (distance < params::tile_size * 2.0f)
-        {
-            std::cout << "Distance to portal: " << distance << " (need < " << params::tile_size << ")" << std::endl;
-        }
-
         if (distance < params::tile_size * 1.5f)  // Made activation area bigger
         {
-            std::cout << "Player reached portal! Loading next level..." << std::endl;
             int enemyCount = this->enemyCount;
             if (this->enemyCount + 1 <= 50)
             {
@@ -571,7 +555,6 @@ void BasicLevelScene::add_enemies(int enemyCount, std::vector<sf::Vector2i> posi
         else
         {
             // Fallback to shape if texture loading fails
-            std::cout << "Failed to load enemy sprite, using fallback shape" << std::endl;
             std::shared_ptr<ShapeComponent> shape = m_enemies.back()->add_component<ShapeComponent>();
             shape->set_shape<sf::RectangleShape>(sf::Vector2f(params::enemy_size[0], params::enemy_size[1]));
             shape->get_shape().setFillColor(sf::Color::Blue);
@@ -611,8 +594,6 @@ void BasicLevelScene::initialise_bullet_pool(int pool_size) {
         m_available_bullets.pop();
     }
 
-    std::cout << "Initialising bullet pool with " << pool_size << " bullets..." << std::endl;
-
     // Create pool of inactive bullets off-screen
     for (int i = 0; i < pool_size; i++) {
         auto bullet = make_entity();
@@ -629,13 +610,10 @@ void BasicLevelScene::initialise_bullet_pool(int pool_size) {
         m_bullet_pool.push_back(bullet);
         m_available_bullets.push(bullet);
     }
-
-    std::cout << "Bullet pool initialised!" << std::endl;
 }
 
 std::shared_ptr<Entity> BasicLevelScene::get_bullet_from_pool() {
     if (m_available_bullets.empty()) {
-        std::cout << "Warning: Bullet pool exhausted! Creating new bullet..." << std::endl;
         // Pool exhausted - create a new bullet (fallback)
         auto bullet = make_entity();
         auto shape = bullet->add_component<ShapeComponent>();

@@ -7,6 +7,9 @@
 #include <map>
 #include <set>
 
+// LevelSystem
+// Handles the creation of levels by taking in a level .txt file
+// and generating an SFML chain representative of such level.
 class LevelSystem
 {
 public:

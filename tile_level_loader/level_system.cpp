@@ -90,7 +90,6 @@ void LevelSystem::load_level(const std::string &path, float tile_size)
                 h++;
                 break;
             default:
-                std::cout << c << std::endl;
         }
         x++;
     }
@@ -105,7 +104,6 @@ void LevelSystem::load_level(const std::string &path, float tile_size)
     m_height = h;
 
     std::copy(temp_tiles.begin(), temp_tiles.end(), &m_tiles[0]);
-    std::cout << "Level " << path << " loaded. " << w << "x" << h << std::endl;
     build_sprites();
 }
 

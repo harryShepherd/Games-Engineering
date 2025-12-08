@@ -19,6 +19,9 @@ struct SteeringBehaviours {
 	static SteeringOutput flee(const sf::Vector2f&, const sf::Vector2f&);
 };
 
+/// <summary>
+/// Controls the behaviour of the enemy AI
+/// </summary>
 class SteeringComponent : public Component {
 	protected:
 		Entity* _player;

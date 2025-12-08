@@ -108,12 +108,8 @@ void GameSystem::moveCamera(sf::Vector2f pos)
 /// <param name="active_sc">The scene to set the active scene to.</param>
 void GameSystem::setActiveScene(const std::shared_ptr<Scene> &active_sc)
 {
-    std::cout << "Changing active scene" << std::endl;
-
     m_active_scene = active_sc;
     m_active_scene->load();
-
-    std::cout << "Scene changed" << std::endl;
 }
 
 /// <summary>
