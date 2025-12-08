@@ -92,6 +92,8 @@ public:
     const sf::Vector2f &get_position() const;
     void set_position(const sf::Vector2f &position);
     bool to_be_deleted() const;
+    float get_rotation() const;
+    void set_rotation(float rotation);
     bool is_alive() const;
     void set_alive(bool alive);
     void set_to_delete();
@@ -105,6 +107,7 @@ public:
 protected:
     std::vector<std::shared_ptr<Component>> m_components;
     sf::Vector2f m_position;
+    float m_rotation = 0.0f;
     bool m_alive = true;            // should be updated
     bool m_visible = true;          // should be rendered
     bool m_for_deletion = false;    // should be deleted
