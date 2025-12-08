@@ -90,6 +90,7 @@ void LevelSystem::load_level(const std::string &path, float tile_size)
                 h++;
                 break;
             default:
+                return;
         }
         x++;
     }
