@@ -8,17 +8,19 @@
 /// Checks if the entities should be deleted, and deletes if yes.
 /// Otherwise, it calls the Entity's update.
 /// </summary>
-/// <param name="dt"></param>
+/// <param name="dt">Delta Time - linked to frame rate.</param>
 void EntityManager::update(const float &dt)
 {
     for(size_t i = 0; i < list.size(); ++i)
     {
+        // Erases entities that have been marked to be deleted.
         if(list[i]->to_be_deleted())
         {
             list.erase(list.begin() + i);
             --i;
             continue;
         }
+        // Updates entities if they are alive.
         if(list[i]->is_alive())
         {
             list[i]->update(dt);
@@ -91,25 +93,6 @@ bool Entity::to_be_deleted() const
 }
 
 /// <summary>
-/// Gets the rotiation of the entity.
-/// SHOULD THIS BE REMOVED?
-/// </summary>
-/// <returns>The rotation of the entity.</returns>
-float Entity::get_rotation() const
-{
-    return m_rotation;
-}
-
-/// <summary>
-/// Sets the rotation of the entity.
-/// </summary>
-/// <param name="rotation">The input target rotation.</param>
-void Entity::set_rotation(float rotation)
-{
-    m_rotation = rotation;
-}
-
-/// <summary>
 /// Checks if the entity is alive.
 /// </summary>
 /// <returns>Returns the entity's status.</returns>
@@ -140,7 +123,7 @@ void Entity::set_to_delete()
 /// <summary>
 /// Returns the visibility of the entity.
 /// </summary>
-/// <returns></returns>
+/// <returns>Visibility</returns>
 bool Entity::is_visible() const
 {
     return m_visible;
@@ -149,7 +132,7 @@ bool Entity::is_visible() const
 /// <summary>
 /// Sets the visibility of the entity.
 /// </summary>
-/// <param name="visible"></param>
+/// <param name="visible">The bool value for visibility.</param>
 void Entity::set_visible(bool visible)
 {
     m_visible = visible;
@@ -161,7 +144,7 @@ void Entity::set_visible(bool visible)
 Entity::~Entity()
 {
     // Components can depend on each other, so we may need to make multiple
-    // passes. Keep deleting components until we can't delete any more.
+        // passes. Keep deleting components until we can't delete any more.
 
     int left_to_delete = 0;
 

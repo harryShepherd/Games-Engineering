@@ -8,8 +8,6 @@
 struct SteeringOutput {
 	// Direction of Travel
 	sf::Vector2f direction;
-	// Rotation of Travel
-	float rotation = 0;
 	static bool check_valid_move(const sf::Vector2f&, SteeringOutput steering);
 };
 
@@ -21,16 +19,17 @@ struct SteeringBehaviours {
 	static SteeringOutput flee(const sf::Vector2f&, const sf::Vector2f&);
 };
 
+/// <summary>
+/// Controls the behaviour of the enemy AI
+/// </summary>
 class SteeringComponent : public Component {
 	protected:
 		Entity* _player;
 		float _max_speed;
-		float steering_rotation(SteeringOutput output);
 	public:
 		void update(const float&) override;
 		void render() override {}
-		explicit SteeringComponent(Entity* p, Entity* player, float max_speed);
+		explicit SteeringComponent(Entity* e, Entity* target, float max_speed);
 		SteeringComponent() = delete;
 };
 
-float steering_rotation(SteeringOutput output);

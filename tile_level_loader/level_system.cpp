@@ -90,7 +90,6 @@ void LevelSystem::load_level(const std::string &path, float tile_size)
                 h++;
                 break;
             default:
-                std::cout << c << std::endl;
         }
         x++;
     }
@@ -105,7 +104,6 @@ void LevelSystem::load_level(const std::string &path, float tile_size)
     m_height = h;
 
     std::copy(temp_tiles.begin(), temp_tiles.end(), &m_tiles[0]);
-    std::cout << "Level " << path << " loaded. " << w << "x" << h << std::endl;
     build_sprites();
 }
 
@@ -225,7 +223,9 @@ std::vector<std::vector<sf::Vector2i>> LevelSystem::get_groups(Tile type)
             {
                 if (tile_list[i] == pos) { break; }
             }
-            tile_list.erase(tile_list.begin() + i);
+            if (i < tile_list.size()) {
+                tile_list.erase(tile_list.begin() + i);
+            }
         }
     }
     return groups;

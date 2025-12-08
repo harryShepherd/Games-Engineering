@@ -5,7 +5,11 @@
 #include "ai_components.hpp"
 #include <array>
 
-
+/// <summary>
+/// Initialises a new PlayerControlComponent.
+/// </summary>
+/// <param name="p">The entity being given a PlayerControlComponent.</param>
+/// <param name="size">The size of the player.</param>
 PlayerControlComponent::PlayerControlComponent(Entity* p, const sf::Vector2f& size) : PhysicsComponent(p, true)
 {
     m_size = Physics::sv2_to_bv2(size);
@@ -15,6 +19,10 @@ PlayerControlComponent::PlayerControlComponent(Entity* p, const sf::Vector2f& si
     b2Body_EnableSleep(m_body_id, false);
 }
 
+/// <summary>
+/// Whether or not the player is grounded and allowing for jump.
+/// </summary>
+/// <returns>Whether or not the player is grounded.</returns>
 bool PlayerControlComponent::is_grounded() const
 {
     std::array<b2ContactData, 10> contacts;
@@ -35,6 +43,11 @@ bool PlayerControlComponent::is_grounded() const
     return false;
 }
 
+/// <summary>
+/// Updates the PlayerControlComponent.
+/// Checks and controls player movement.
+/// </summary>
+/// <param name="dt">Delta Time - Linked to Frame Rate.</param>
 void PlayerControlComponent::update(const float& dt)
 {
     const sf::Vector2f pos = m_parent->get_position();
@@ -93,6 +106,11 @@ void PlayerControlComponent::update(const float& dt)
     PhysicsComponent::update(dt);
 }
 
+/// <summary>
+/// Initialises a new EnemyControlComponent.
+/// </summary>
+/// <param name="e">The entity being given a EnemyControlComponent.</param>
+/// <param name="size">The size of the enemy.</param>
 EnemyControlComponent::EnemyControlComponent(Entity* e, const sf::Vector2f& size) : PhysicsComponent(e, true)
 {
     m_size = Physics::sv2_to_bv2(size);
@@ -103,6 +121,10 @@ EnemyControlComponent::EnemyControlComponent(Entity* e, const sf::Vector2f& size
     b2Body_EnableSleep(m_body_id, false);
 }
 
+/// <summary>
+/// Whether or not the enemy is grounded and allowing for jump.
+/// </summary>
+/// <returns>Whether or not the enemy is grounded.</returns>
 bool EnemyControlComponent::is_grounded() const
 {
     std::array<b2ContactData, 10> contacts;
@@ -125,6 +147,12 @@ bool EnemyControlComponent::is_grounded() const
 
 SteeringOutput output;
 
+
+/// <summary>
+/// Updates the EnemyControlComponent.
+/// Checks and controls Enemy movement.
+/// </summary>
+/// <param name="dt">Delta Time - Linked to Frame Rate.</param>
 void EnemyControlComponent::update(const float& dt)
 {
     if (this->m_parent->is_alive())
@@ -194,6 +222,10 @@ void EnemyControlComponent::update(const float& dt)
     }
 }
 
+/// <summary>
+/// Sets the enemy's target.
+/// </summary>
+/// <param name="targetEntity">The target for the enemy.</param>
 void EnemyControlComponent::set_target(std::shared_ptr<Entity> targetEntity) {
     target = targetEntity;
 }

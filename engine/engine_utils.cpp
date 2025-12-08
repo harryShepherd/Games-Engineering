@@ -23,6 +23,12 @@ std::string EngineUtils::GetRelativePath(std::string path)
 
 #else
 
+/// <summary>
+/// Returns the relative path of the input as a string.
+/// Return values differ by operating system as there are differences between Windows and Mac.
+/// </summary>
+/// <param name="path">The string path</param>
+/// <returns>The relative path</returns>
 std::string EngineUtils::GetRelativePath(std::string path)
 {
     return path;
